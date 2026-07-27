@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 
 export async function GET() {
-  const usersResult = await pool.query('SELECT id, name, email, "createdAt", status FROM "User" ORDER BY "createdAt" DESC');
+  const usersResult = await pool.query('SELECT id, name, email, "createdAt", status, role FROM "User" ORDER BY "createdAt" DESC');
   const users = usersResult.rows;
 
   const usersWithAccounts = await Promise.all(

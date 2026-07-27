@@ -53,6 +53,7 @@ interface VantisContextValue extends VantisState {
   rejectUser: (userId: string) => Promise<{ ok: boolean; error?: string }>;
   blockUser: (userId: string) => Promise<{ ok: boolean; error?: string }>;
   unblockUser: (userId: string) => Promise<{ ok: boolean; error?: string }>;
+  toggleAdmin: (userId: string, currentRole: string) => Promise<{ ok: boolean; role?: string; error?: string }>;
   backfillUser: (userId: string) => Promise<{ ok: boolean; count?: number; error?: string }>;
   refreshData: () => Promise<void>;
   totalBalance: number;
@@ -501,6 +502,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return { ok: true };
   }, []);
 
+  const toggleAdmin = useCallback(async (userId: string, currentRole: string) => {
+    const newRole = currentRole === "admin" ? "user" : "admin";
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role: newRole }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { ok: false, error: data.error };
+    return { ok: true, role: data.user?.role };
+  }, []);
+
   const totalBalance = state.accounts.reduce((sum, a) => sum + a.balance, 0);
   const myAccountForReceiving = state.accounts[0] ?? {
     id: "acc_temp",
@@ -527,6 +540,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     rejectUser,
     blockUser,
     unblockUser,
+    toggleAdmin,
     backfillUser,
     refreshData,
     totalBalance,

@@ -55,6 +55,7 @@ export async function POST(request: Request) {
         phone: "",
         address: "",
         createdAt: user.createdAt,
+        role: user.role || "user",
       },
     });
   } catch {

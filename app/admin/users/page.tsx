@@ -12,12 +12,13 @@ interface AdminUser {
   email: string;
   createdAt: string;
   status: UserStatus;
+  role: string;
   balance: number;
   transactionCount?: number;
 }
 
 export default function AdminUsersPage() {
-  const { fetchPendingUsers, approveUser, rejectUser, blockUser, unblockUser, backfillUser } = useVantis();
+  const { fetchPendingUsers, approveUser, rejectUser, blockUser, unblockUser, backfillUser, toggleAdmin } = useVantis();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -108,6 +109,17 @@ export default function AdminUsersPage() {
     );
   }
 
+  function getRoleBadge(role: string) {
+    if (role === "admin") {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border bg-gold-400/10 text-gold-300 border-gold-400/20">
+          Admin
+        </span>
+      );
+    }
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-ink-900">
       <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8">
@@ -139,6 +151,7 @@ export default function AdminUsersPage() {
                   <div className="flex items-center gap-3 mb-1">
                     <p className="text-bone font-medium">{user.name}</p>
                     {getStatusBadge(user.status)}
+                    {getRoleBadge(user.role)}
                   </div>
                   <p className="text-sm text-bone/40">{user.email}</p>
                   <p className="text-xs text-bone/30 mt-1">
@@ -190,6 +203,26 @@ export default function AdminUsersPage() {
                         className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-400/10 text-red-300 border border-red-400/20 hover:bg-red-400/20 text-sm font-medium transition-colors disabled:opacity-50"
                       >
                         <Ban className="w-4 h-4" /> Block
+                      </button>
+                      <button
+                        onClick={async () => {
+                          setActionLoading(user.id);
+                          const result = await toggleAdmin(user.id, user.role);
+                          setActionLoading(null);
+                          if (result.ok) {
+                            await loadUsers();
+                          } else {
+                            alert(result.error || "Failed to update role");
+                          }
+                        }}
+                        disabled={actionLoading === user.id}
+                        className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border transition-colors disabled:opacity-50 ${
+                          user.role === "admin"
+                            ? "bg-ink-700/60 text-bone/70 border-white/10 hover:bg-ink-700"
+                            : "bg-gold-400/10 text-gold-300 border-gold-400/20 hover:bg-gold-400/20"
+                        }`}
+                      >
+                        {user.role === "admin" ? "Remove Admin" : "Make Admin"}
                       </button>
                     </>
                   )}

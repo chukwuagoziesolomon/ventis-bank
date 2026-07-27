@@ -27,7 +27,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ user: null });
       }
 
-      const result = await pool.query('SELECT id, name, email FROM "User" WHERE id = $1', [userId]);
+      const result = await pool.query('SELECT id, name, email, role FROM "User" WHERE id = $1', [userId]);
       const user = result.rows[0];
 
       if (!user) {
@@ -51,6 +51,7 @@ export async function GET(request: Request) {
           phone: "",
           address: "",
           createdAt: new Date().toISOString(),
+          role: user.role || "user",
         },
       });
     } catch {

@@ -196,28 +196,44 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { status, balance } = await request.json();
+    const { status, balance, role } = await request.json();
 
-    if (!["approved", "rejected", "blocked"].includes(status)) {
-      return NextResponse.json({ ok: false, error: "Invalid status." }, { status: 400 });
+    const updates: string[] = [];
+    const queryParams: any[] = [];
+    let paramIndex = 1;
+    const now = new Date().toISOString();
+
+    if (status && ["approved", "rejected", "blocked"].includes(status)) {
+      updates.push(`status = $${paramIndex}`);
+      queryParams.push(status);
+      paramIndex++;
     }
 
-    const result = await pool.query('SELECT * FROM "User" WHERE id = $1', [params.id]);
+    if (role === "admin" || role === "user") {
+      updates.push(`role = $${paramIndex}`);
+      queryParams.push(role);
+      paramIndex++;
+    }
+
+    if (updates.length === 0) {
+      return NextResponse.json({ ok: false, error: "No valid updates provided." }, { status: 400 });
+    }
+
+    updates.push(`"updatedAt" = $${paramIndex}`);
+    queryParams.push(now);
+    paramIndex++;
+
+    const sql = `UPDATE "User" SET ${updates.join(", ")} WHERE id = $${paramIndex} RETURNING *`;
+    queryParams.push(params.id);
+
+    const result = await pool.query(sql, queryParams);
     const user = result.rows[0];
 
     if (!user) {
       return NextResponse.json({ ok: false, error: "User not found." }, { status: 404 });
     }
 
-    const now = new Date().toISOString();
-
     if (status === "approved") {
-      await pool.query('UPDATE "User" SET status = $1, "updatedAt" = $2 WHERE id = $3', [
-        "approved",
-        now,
-        params.id,
-      ]);
-
       const accountResult = await pool.query('SELECT id FROM "Account" WHERE "userId" = $1', [params.id]);
       if (accountResult.rows.length === 0) {
         const accountId = `acc_${Math.random().toString(36).slice(2, 10)}`;
@@ -268,21 +284,9 @@ export async function PATCH(
           }
         }
       }
-    } else if (status === "blocked") {
-      await pool.query('UPDATE "User" SET status = $1, "updatedAt" = $2 WHERE id = $3', [
-        "blocked",
-        now,
-        params.id,
-      ]);
-    } else {
-      await pool.query('UPDATE "User" SET status = $1, "updatedAt" = $2 WHERE id = $3', [
-        "rejected",
-        now,
-        params.id,
-      ]);
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, user });
   } catch {
     return NextResponse.json({ ok: false, error: "Something went wrong." }, { status: 500 });
   }

@@ -8,6 +8,7 @@ export const seedUser: VantisUser = {
   phone: "+1 (415) 555-0148",
   address: "148 Ferry Street, San Francisco, CA",
   image: "",
+  role: "user",
   createdAt: "2023-02-11T10:00:00.000Z",
 };
 

@@ -6,6 +6,7 @@ export interface VantisUser {
   phone: string;
   address: string;
   image: string;
+  role: "user" | "admin";
   createdAt: string;
 }
 
