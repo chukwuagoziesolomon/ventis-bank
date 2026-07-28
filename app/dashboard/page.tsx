@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Send, QrCode, Plus, TrendingUp } from "lucide-react";
 import { useVantis } from "@/lib/store";
+import { useRouter } from "next/navigation";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import MiniBarChart from "@/components/MiniBarChart";
 import TransactionRow from "@/components/TransactionRow";
@@ -21,6 +22,7 @@ const weeklySpend = [
 
 export default function OverviewPage() {
   const { accounts, transactions, cards, user } = useVantis();
+  const router = useRouter();
   const recent = transactions.slice(0, 20);
 
   return (
@@ -33,18 +35,18 @@ export default function OverviewPage() {
           </h1>
         </div>
         <div className="flex gap-2.5">
-          <Link
-            href="/dashboard/send"
+          <button
+            onClick={() => router.push("/dashboard/send")}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gold-400 text-ink-950 text-sm font-semibold hover:bg-gold-300 transition-colors"
           >
             <Send className="w-4 h-4" /> Send
-          </Link>
-          <Link
-            href="/dashboard/receive"
+          </button>
+          <button
+            onClick={() => router.push("/dashboard/receive")}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 text-bone text-sm font-semibold border border-white/10 hover:bg-white/10 transition-colors"
           >
             <QrCode className="w-4 h-4" /> Receive
-          </Link>
+          </button>
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -105,6 +105,10 @@ export default function DashboardShell({ children }: { children: React.ReactNode
   const pathname = usePathname();
   const { totalBalance, user } = useVantis();
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
   return (
     <div className="min-h-screen bg-ink-900 bg-grid">
       {/* Desktop sidebar */}
@@ -113,35 +117,33 @@ export default function DashboardShell({ children }: { children: React.ReactNode
       </aside>
 
       {/* Mobile drawer */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMobileOpen(false)}
+            className="absolute inset-0 bg-black/60"
+          />
+          <motion.aside
+            initial={{ x: -280 }}
+            animate={{ x: 0 }}
+            exit={{ x: -280 }}
+            transition={{ type: "spring", stiffness: 320, damping: 32 }}
+            className="absolute inset-y-0 left-0 w-72 bg-ink-900 border-r border-white/10 px-4 py-6"
+          >
+            <button
               onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 bg-black/60 z-40 lg:hidden"
-            />
-            <motion.aside
-              initial={{ x: -280 }}
-              animate={{ x: 0 }}
-              exit={{ x: -280 }}
-              transition={{ type: "spring", stiffness: 320, damping: 32 }}
-              className="fixed inset-y-0 left-0 w-72 bg-ink-900 border-r border-white/10 px-4 py-6 z-50 lg:hidden"
+              className="absolute top-6 right-4 text-bone/50"
+              aria-label="Close menu"
             >
-              <button
-                onClick={() => setMobileOpen(false)}
-                className="absolute top-6 right-4 text-bone/50"
-                aria-label="Close menu"
-              >
-                <X className="w-5 h-5" />
-              </button>
-              <SidebarContent onNavigate={() => setMobileOpen(false)} />
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
+              <X className="w-5 h-5" />
+            </button>
+            <SidebarContent onNavigate={() => setMobileOpen(false)} />
+          </motion.aside>
+        </div>
+      )}
 
       <div className="lg:pl-64">
         {/* Topbar */}

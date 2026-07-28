@@ -92,8 +92,8 @@ export default function SettingsPage() {
                       try {
                         const url = await uploadAvatar(file);
                         setProfile({ ...profile, image: url });
-                      } catch {
-                        // ignore upload error
+                      } catch (err) {
+                        alert(err instanceof Error ? err.message : "Upload failed.");
                       }
                     }
                   }}
