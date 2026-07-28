@@ -27,33 +27,34 @@ export async function GET(request: Request) {
         return NextResponse.json({ user: null });
       }
 
-      const result = await pool.query('SELECT id, name, email, role FROM "User" WHERE id = $1', [userId]);
-      const user = result.rows[0];
+    const result = await pool.query('SELECT id, name, email, role, image, phone, address, "createdAt" FROM "User" WHERE id = $1', [userId]);
+    const user = result.rows[0];
 
-      if (!user) {
-        return NextResponse.json({ user: null });
-      }
+    if (!user) {
+      return NextResponse.json({ user: null });
+    }
 
-      const initials = user.name
-        .trim()
-        .split(" ")
-        .map((p: string) => p[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase() || "VB";
+    const initials = user.name
+      .trim()
+      .split(" ")
+      .map((p: string) => p[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "VB";
 
-      return NextResponse.json({
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          initials,
-          phone: "",
-          address: "",
-          createdAt: new Date().toISOString(),
-          role: user.role || "user",
-        },
-      });
+    return NextResponse.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        initials,
+        phone: user.phone ?? "",
+        address: user.address ?? "",
+        createdAt: user.createdAt,
+        role: user.role || "user",
+        image: user.image ?? null,
+      },
+    });
     } catch {
       return NextResponse.json({ user: null });
     }

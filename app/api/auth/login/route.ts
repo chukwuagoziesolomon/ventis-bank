@@ -52,10 +52,11 @@ export async function POST(request: Request) {
         name: user.name,
         email: user.email,
         initials: initials || "VB",
-        phone: "",
-        address: "",
+        phone: user.phone ?? "",
+        address: user.address ?? "",
         createdAt: user.createdAt,
         role: user.role || "user",
+        image: user.image ?? null,
       },
     });
   } catch {
