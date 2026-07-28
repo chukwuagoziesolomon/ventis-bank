@@ -73,8 +73,8 @@ export default function SettingsPage() {
         >
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-ink-950 border border-white/10 grid place-items-center overflow-hidden">
-              {user?.image ? (
-                <img src={user.image} alt="Avatar" className="w-full h-full object-cover" />
+              {profile.image ? (
+                <img src={profile.image} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-lg font-semibold text-bone/60">{user?.initials ?? "VB"}</span>
               )}

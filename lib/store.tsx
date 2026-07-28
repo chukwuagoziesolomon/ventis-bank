@@ -438,6 +438,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error ?? "Upload failed.");
+
+    setState((prev) => (prev.user ? { ...prev, user: { ...prev.user, image: data.imageUrl } } : prev));
     return data.imageUrl;
   }, [state.user?.id]);
 
