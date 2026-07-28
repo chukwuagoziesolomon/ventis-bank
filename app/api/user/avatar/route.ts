@@ -47,7 +47,9 @@ export async function POST(request: Request) {
     await pool.query('UPDATE "User" SET image = $1, "updatedAt" = $2 WHERE id = $3', [imageUrl, new Date().toISOString(), userId]);
 
     return NextResponse.json({ imageUrl });
-  } catch {
-    return NextResponse.json({ error: "Something went wrong." }, { status: 500 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Something went wrong.";
+    console.error("Avatar upload error:", err);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
