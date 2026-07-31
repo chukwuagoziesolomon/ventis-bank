@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, ChevronLeft, Send, Loader2 } from "lucide-react";
+import { ChevronLeft, Send, Loader2, Clock } from "lucide-react";
 import { useVantis } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 
@@ -293,14 +293,16 @@ export default function SendMoneyPage() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 12, delay: 0.1 }}
+                className="w-16 h-16 rounded-full bg-gold-400/10 border border-gold-400/30 grid place-items-center"
               >
-                <CheckCircle2 className="w-16 h-16 text-teal-300" />
+                <Clock className="w-8 h-8 text-gold-300" />
               </motion.div>
               <div>
-                <p className="font-display text-2xl text-bone">Transfer sent</p>
+                <p className="font-display text-2xl text-bone">Transfer pending</p>
                 <p className="text-sm text-bone/40 mt-1">
                   {formatCurrency(parseFloat(form.amount || "0"))} is on its way to {form.recipient} via {form.transferType === "local" ? "local bank" : "international bank"}.
                 </p>
+                <p className="text-xs text-bone/30 mt-2">This usually takes a few minutes to complete.</p>
               </div>
               <button
                 onClick={() => {

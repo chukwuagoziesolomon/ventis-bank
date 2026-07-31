@@ -5,14 +5,15 @@ import { ArrowDownLeft, ArrowUpRight, Clock } from "lucide-react";
 import { Transaction } from "@/lib/types";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 
-export default function TransactionRow({ tx, index = 0 }: { tx: Transaction; index?: number }) {
+export default function TransactionRow({ tx, index = 0, onClick }: { tx: Transaction; index?: number; onClick?: () => void }) {
   const isCredit = tx.direction === "credit";
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03, duration: 0.3 }}
-      className="flex items-center gap-3 sm:gap-4 py-3.5 border-b border-white/5 last:border-0"
+      onClick={onClick}
+      className={`flex items-center gap-3 sm:gap-4 py-3.5 border-b border-white/5 last:border-0 ${onClick ? "cursor-pointer hover:bg-white/[0.02] transition-colors" : ""}`}
     >
       <div
         className={`w-10 h-10 rounded-full grid place-items-center shrink-0 ${
