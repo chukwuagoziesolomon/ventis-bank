@@ -26,7 +26,7 @@ const navItems = [
   { href: "/dashboard/receive", label: "Receive money", icon: QrCode },
   { href: "/dashboard/transactions", label: "Transactions", icon: History },
   { href: "/dashboard/cards", label: "Cards", icon: CreditCard },
-  { href: "/admin/users", label: "Admin", icon: Shield },
+  { href: "/admin/users", label: "Admin", icon: Shield, adminOnly: true },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
@@ -45,7 +45,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </Link>
 
       <nav className="flex-1 space-y-1">
-        {navItems.map((item) => {
+        {navItems.filter((item) => !item.adminOnly || user?.role === "admin").map((item) => {
           const active = pathname === item.href;
           const Icon = item.icon;
           return (
