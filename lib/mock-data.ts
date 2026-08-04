@@ -122,13 +122,13 @@ export const seedTransactions: Transaction[] = [
   },
   {
     id: "tx_6",
-    title: "From Tolu Adebayo",
+    title: "From Alex Morgan",
     category: "Transfer",
     amount: 620,
-    date: "2026-07-17T14:02:00.000Z",
+    date: "2026-07-19T14:02:00.000Z",
     accountId: "acc_checking",
     direction: "credit",
-    counterparty: "Tolu Adebayo",
+    counterparty: "Alex Morgan",
     status: "completed",
   },
   {

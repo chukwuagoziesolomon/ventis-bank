@@ -6,7 +6,7 @@ const testimonials = [
   {
     quote:
       "I switched my whole studio's payroll to Vantis. Everyone got paid the same afternoon instead of three days later.",
-    name: "Tolu Adebayo",
+    name: "Alex Morgan",
     role: "Founder, Ferry & Finch",
     initials: "TA",
   },

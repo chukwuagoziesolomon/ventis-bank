@@ -180,7 +180,7 @@ export default function LandingPage() {
             >
               <p className="text-[11px] text-bone/40 uppercase tracking-[0.15em]">Sent</p>
               <p className="font-mono text-lg text-teal-300 mt-1">$620.00</p>
-              <p className="text-xs text-bone/40 mt-0.5">to Tolu Adebayo</p>
+              <p className="text-xs text-bone/40 mt-0.5">to Alex Morgan</p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, x: -20 }}

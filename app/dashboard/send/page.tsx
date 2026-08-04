@@ -135,7 +135,7 @@ export default function SendMoneyPage() {
                 <input
                   value={form.recipient}
                   onChange={(e) => setForm({ ...form, recipient: e.target.value })}
-                  placeholder="e.g. Tolu Adebayo"
+                   placeholder="e.g. Alex Morgan"
                   className="w-full bg-ink-700/60 border border-white/10 rounded-xl px-4 py-3 text-bone text-sm placeholder:text-bone/25 focus:border-gold-400/50 outline-none"
                 />
               </div>

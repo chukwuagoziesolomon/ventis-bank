@@ -23,7 +23,7 @@ const previewCard: Card = {
 
 const mockTx = [
   { title: "Kaya Coffee Roasters", amount: "-$8.50", credit: false },
-  { title: "From Tolu Adebayo", amount: "+$620.00", credit: true },
+  { title: "From Alex Morgan", amount: "+$620.00", credit: true },
   { title: "Ondo Electric Co.", amount: "-$142.18", credit: false },
 ];
 
