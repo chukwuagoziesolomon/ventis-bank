@@ -46,7 +46,7 @@ interface CreateCardInput {
 }
 
 interface VantisContextValue extends VantisState {
-  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string; pending?: boolean }>;
+  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string; pending?: boolean; pendingCode?: boolean; message?: string }>;
   signup: (name: string, email: string, password: string) => Promise<{ ok: boolean; error?: string; pending?: boolean }>;
   logout: () => void;
   sendMoney: (input: SendMoneyInput) => Promise<{ ok: boolean; error?: string }>;
@@ -191,6 +191,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         return { ok: false, error: data.error ?? "Your account is pending approval.", pending: true };
       }
       return { ok: false, error: data.error ?? "Invalid credentials." };
+    }
+
+    if (data.pendingCode) {
+      setState((prev) => ({ ...prev, loading: false }));
+      return { ok: false, pendingCode: true, message: data.message ?? "Login code sent to your email." };
     }
 
     const sessionRes = await fetch("/api/auth/session", {

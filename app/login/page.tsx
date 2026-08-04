@@ -7,55 +7,34 @@ import { motion } from "framer-motion";
 import { Landmark, Loader2, Eye, EyeOff, Mail } from "lucide-react";
 import { useVantis } from "@/lib/store";
 
-type LoginMode = "password" | "code";
+type LoginStep = "credentials" | "code";
 
 export default function LoginPage() {
   const { login } = useVantis();
   const router = useRouter();
-  const [mode, setMode] = useState<LoginMode>("password");
+  const [step, setStep] = useState<LoginStep>("credentials");
   const [email, setEmail] = useState("demo@vantis.bank");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [codeSent, setCodeSent] = useState(false);
-  const [codeLoading, setCodeLoading] = useState(false);
 
-  async function handlePasswordSubmit(e: React.FormEvent) {
+  async function handleCredentialsSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
     const result = await login(email, password);
     setLoading(false);
     if (!result.ok) {
+      if (result.pendingCode) {
+        setStep("code");
+        return;
+      }
       setError(result.error ?? "Something went wrong.");
       return;
     }
     router.push("/dashboard");
-  }
-
-  async function handleSendCode(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setCodeLoading(true);
-    try {
-      const res = await fetch("/api/auth/login-code", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Something went wrong.");
-        return;
-      }
-      setCodeSent(true);
-    } catch {
-      setError("Something went wrong.");
-    } finally {
-      setCodeLoading(false);
-    }
   }
 
   async function handleCodeSubmit(e: React.FormEvent) {
@@ -123,35 +102,12 @@ export default function LoginPage() {
           </Link>
 
           <h1 className="font-display text-3xl text-bone mb-2">Welcome back</h1>
-          <p className="text-sm text-bone/40 mb-6">Log in to manage your money.</p>
+          <p className="text-sm text-bone/40 mb-8">
+            {step === "credentials" ? "Log in to manage your money." : "Enter the code sent to your email."}
+          </p>
 
-          <div className="flex gap-2 mb-6">
-            <button
-              type="button"
-              onClick={() => { setMode("password"); setError(""); setCodeSent(false); }}
-              className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-colors ${
-                mode === "password"
-                  ? "bg-gold-400 text-ink-950 border-gold-400"
-                  : "bg-ink-800 text-bone/60 border-white/10 hover:text-bone"
-              }`}
-            >
-              Password
-            </button>
-            <button
-              type="button"
-              onClick={() => { setMode("code"); setError(""); setCodeSent(false); }}
-              className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-colors ${
-                mode === "code"
-                  ? "bg-gold-400 text-ink-950 border-gold-400"
-                  : "bg-ink-800 text-bone/60 border-white/10 hover:text-bone"
-              }`}
-            >
-              Login code
-            </button>
-          </div>
-
-          {mode === "password" ? (
-            <form onSubmit={handlePasswordSubmit} className="space-y-5">
+          {step === "credentials" ? (
+            <form onSubmit={handleCredentialsSubmit} className="space-y-5">
               <div>
                 <label className="block text-xs uppercase tracking-[0.15em] text-bone/40 mb-2">Email</label>
                 <input
@@ -206,64 +162,49 @@ export default function LoginPage() {
                 <label className="block text-xs uppercase tracking-[0.15em] text-bone/40 mb-2">Email</label>
                 <input
                   value={email}
-                  onChange={(e) => { setEmail(e.target.value); setCodeSent(false); }}
+                  onChange={(e) => setEmail(e.target.value)}
                   type="email"
                   required
                   className="w-full bg-ink-800 border border-white/10 rounded-xl px-4 py-3 text-bone text-sm focus:border-gold-400/50 outline-none"
                 />
               </div>
 
-              {!codeSent ? (
-                <button
-                  type="button"
-                  onClick={handleSendCode}
-                  disabled={codeLoading}
-                  className="w-full inline-flex items-center justify-center gap-2 bg-gold-400 hover:bg-gold-300 disabled:opacity-60 text-ink-950 font-semibold py-3.5 rounded-xl transition-colors"
-                >
-                  {codeLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {codeLoading ? "Sending code…" : "Send login code"}
-                </button>
-              ) : (
-                <>
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.15em] text-bone/40 mb-2">Enter code</label>
-                    <div className="relative">
-                      <input
-                        value={code}
-                        onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={6}
-                        placeholder="000000"
-                        required
-                        className="w-full bg-ink-800 border border-white/10 rounded-xl px-4 py-3 pl-11 text-bone text-sm placeholder:text-bone/25 focus:border-gold-400/50 outline-none font-mono tracking-widest"
-                      />
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-bone/30" />
-                    </div>
-                    <p className="text-xs text-bone/30 mt-2">Code sent to {email}</p>
-                  </div>
+              <div>
+                <label className="block text-xs uppercase tracking-[0.15em] text-bone/40 mb-2">Enter code</label>
+                <div className="relative">
+                  <input
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="000000"
+                    required
+                    className="w-full bg-ink-800 border border-white/10 rounded-xl px-4 py-3 pl-11 text-bone text-sm placeholder:text-bone/25 focus:border-gold-400/50 outline-none font-mono tracking-widest"
+                  />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-bone/30" />
+                </div>
+                <p className="text-xs text-bone/30 mt-2">Code sent to {email}</p>
+              </div>
 
-                  {error && <p className="text-sm text-coral">{error}</p>}
+              {error && <p className="text-sm text-coral">{error}</p>}
 
-                  <button
-                    type="submit"
-                    disabled={loading || code.length !== 6}
-                    className="w-full inline-flex items-center justify-center gap-2 bg-gold-400 hover:bg-gold-300 disabled:opacity-60 text-ink-950 font-semibold py-3.5 rounded-xl transition-colors"
-                  >
-                    {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                    {loading ? "Verifying…" : "Log in with code"}
-                  </button>
+              <button
+                type="submit"
+                disabled={loading || code.length !== 6}
+                className="w-full inline-flex items-center justify-center gap-2 bg-gold-400 hover:bg-gold-300 disabled:opacity-60 text-ink-950 font-semibold py-3.5 rounded-xl transition-colors"
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading ? "Verifying…" : "Verify and log in"}
+              </button>
 
-                  <button
-                    type="button"
-                    onClick={handleSendCode}
-                    disabled={codeLoading}
-                    className="w-full text-sm text-gold-300 hover:text-gold-200 font-medium"
-                  >
-                    {codeLoading ? "Sending…" : "Resend code"}
-                  </button>
-                </>
-              )}
+              <button
+                type="button"
+                onClick={() => setStep("credentials")}
+                className="w-full text-sm text-bone/40 hover:text-bone"
+              >
+                Back to password
+              </button>
             </form>
           )}
 
