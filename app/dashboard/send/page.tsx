@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, Send, Loader2, Clock } from "lucide-react";
+import { ArrowRight, ChevronLeft, Send, Loader2, Clock, Lock as LockIcon } from "lucide-react";
 import { useVantis } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 
@@ -10,7 +10,7 @@ type Step = "form" | "review" | "sending" | "success";
 type TransferType = "local" | "international";
 
 export default function SendMoneyPage() {
-  const { accounts, sendMoney } = useVantis();
+  const { accounts, sendMoney, user } = useVantis();
   const [step, setStep] = useState<Step>("form");
   const [error, setError] = useState("");
   const [form, setForm] = useState({
@@ -24,6 +24,8 @@ export default function SendMoneyPage() {
     swiftCode: "",
     routingNumber: "",
   });
+
+  const isLocked = user?.locked === true;
 
   useEffect(() => {
     if (!form.fromAccountId && accounts.length > 0) {
@@ -71,6 +73,12 @@ export default function SendMoneyPage() {
       <p className="text-sm text-bone/40 mb-8">Move money to anyone, instantly.</p>
 
       <div className="rounded-2xl border border-white/5 bg-ink-800 p-6 sm:p-8 min-h-[420px]">
+        {isLocked && (
+            <div className="flex items-center gap-3 rounded-xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 mb-6">
+              <LockIcon className="w-4 h-4 text-amber-300 shrink-0" />
+              <p className="text-sm text-amber-300">Your account is locked. Sending money is currently disabled. Contact support for assistance.</p>
+            </div>
+        )}
         <AnimatePresence mode="wait">
           {step === "form" && (
             <motion.form
@@ -277,8 +285,17 @@ export default function SendMoneyPage() {
               exit={{ opacity: 0 }}
               className="h-[320px] flex flex-col items-center justify-center gap-4"
             >
-              <Loader2 className="w-8 h-8 text-gold-300 animate-spin" />
-              <p className="text-sm text-bone/50">Sending your transfer…</p>
+              <div className="w-full max-w-xs h-2 rounded-full bg-white/10 overflow-hidden relative">
+                <motion.div
+                  initial={{ x: "-100%" }}
+                  animate={{ x: "100%" }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+                  className="absolute top-0 left-0 h-full w-10 flex items-center justify-center"
+                >
+                  <ArrowRight className="w-5 h-5 text-gold-300" />
+                </motion.div>
+              </div>
+              <p className="text-sm text-bone/50">Processing your transfer…</p>
             </motion.div>
           )}
 
@@ -295,10 +312,10 @@ export default function SendMoneyPage() {
                 transition={{ type: "spring", stiffness: 200, damping: 12, delay: 0.1 }}
                 className="w-16 h-16 rounded-full bg-gold-400/10 border border-gold-400/30 grid place-items-center"
               >
-                <Clock className="w-8 h-8 text-gold-300" />
+                <ArrowRight className="w-8 h-8 text-gold-300 animate-[pulse_1.5s_ease-in-out_infinite]" />
               </motion.div>
               <div>
-                <p className="font-display text-2xl text-bone">Transfer pending</p>
+                <p className="font-display text-2xl text-bone">Transfer processing</p>
                 <p className="text-sm text-bone/40 mt-1">
                   {formatCurrency(parseFloat(form.amount || "0"))} is on its way to {form.recipient} via {form.transferType === "local" ? "local bank" : "international bank"}.
                 </p>

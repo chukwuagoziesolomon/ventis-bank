@@ -204,7 +204,10 @@ export default function SignupPage() {
               Thanks for signing up, {form.name.split(" ")[0]}! Your account details are currently being reviewed by our team.
             </p>
             <p className="text-sm text-bone/40">
-              This usually takes a few minutes. You'll be able to log in and access your account once your application is approved.
+              We also sent a verification link to your email address. Verify your email to prepare your account for login once approval is complete.
+            </p>
+            <p className="text-sm text-bone/40">
+              This usually takes a few minutes. If you don't see the message, check your spam folder.
             </p>
             <div className="pt-4">
               <button

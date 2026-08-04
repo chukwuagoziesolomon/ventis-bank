@@ -17,6 +17,7 @@ import {
   Landmark,
   User,
   Shield,
+  MessageCircle,
 } from "lucide-react";
 import { useVantis } from "@/lib/store";
 
@@ -26,6 +27,7 @@ const navItems = [
   { href: "/dashboard/receive", label: "Receive money", icon: QrCode },
   { href: "/dashboard/transactions", label: "Transactions", icon: History },
   { href: "/dashboard/cards", label: "Cards", icon: CreditCard },
+  { href: "/dashboard/support", label: "Support", icon: MessageCircle },
   { href: "/admin/users", label: "Admin", icon: Shield, adminOnly: true },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];

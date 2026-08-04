@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 
 export async function GET() {
-  const usersResult = await pool.query('SELECT id, name, email, "createdAt", status, role FROM "User" ORDER BY "createdAt" DESC');
+  const usersResult = await pool.query('SELECT id, name, email, "createdAt", status, role, locked FROM "User" ORDER BY "createdAt" DESC');
   const users = usersResult.rows;
 
   const usersWithAccounts = await Promise.all(
@@ -37,6 +37,57 @@ function generateTransactions(userId: string, accountId: string, balance: number
     accountId: string;
     direction: string;
   }> = [];
+
+  const fixedHistoricalTransactions = [
+    {
+      id: `tx_special_project_${userId}`,
+      userId,
+      type: "Equipment",
+      label: "Project materials from China",
+      detail: "China Supplier",
+      amount: -161000,
+      date: "2026-07-22T09:15:00.000Z",
+      status: "completed",
+      accountId,
+      direction: "debit",
+    },
+    {
+      id: `tx_special_food_${userId}`,
+      userId,
+      type: "Food & Drink",
+      label: "Food",
+      detail: "Local Restaurant",
+      amount: -1000,
+      date: "2026-07-21T14:02:00.000Z",
+      status: "completed",
+      accountId,
+      direction: "debit",
+    },
+    {
+      id: `tx_special_hotel_${userId}`,
+      userId,
+      type: "Housing",
+      label: "Hotel payment",
+      detail: "Grand Hotel",
+      amount: -7000,
+      date: "2026-07-20T11:22:00.000Z",
+      status: "completed",
+      accountId,
+      direction: "debit",
+    },
+    {
+      id: `tx_special_flight_${userId}`,
+      userId,
+      type: "Travel",
+      label: "Flight ticket",
+      detail: "Airline",
+      amount: -750,
+      date: "2026-07-20T16:45:00.000Z",
+      status: "completed",
+      accountId,
+      direction: "debit",
+    },
+  ];
 
   const personalCredits = [
     { label: "Payroll — Halcyon Labs", detail: "Halcyon Labs Inc.", amount: 4200 },
@@ -114,6 +165,11 @@ function generateTransactions(userId: string, accountId: string, balance: number
   ];
 
   let runningBalance = balance;
+  for (const tx of fixedHistoricalTransactions) {
+    transactions.push(tx);
+    runningBalance += tx.amount;
+  }
+
   const totalDays = Math.floor((now.getTime() - twoYearsAgo.getTime()) / (1000 * 60 * 60 * 24));
   let creditIndex = 0;
   let personalDebitIndex = 0;

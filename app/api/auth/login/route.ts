@@ -2,6 +2,8 @@ export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
+import { getVerificationToken, isEmailVerified } from "@/lib/verification";
+import { sendVerificationEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -37,6 +39,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Invalid credentials." }, { status: 401 });
     }
 
+    const token = getVerificationToken(user.id);
+    const verified = isEmailVerified(user.id) || !token;
+    if (!verified) {
+      try {
+        sendVerificationEmail(user.email, user.name, token);
+      } catch {
+        // ignore outbox errors during login retry
+      }
+      return NextResponse.json(
+        { ok: false, error: "Email not verified. A fresh verification link was sent.", unverified: true },
+        { status: 403 }
+      );
+    }
+
     const initials = user.name
       .trim()
       .split(" ")
@@ -57,6 +73,7 @@ export async function POST(request: Request) {
         createdAt: user.createdAt,
         role: user.role || "user",
         image: user.image ?? null,
+        locked: user.locked ?? false,
       },
     });
   } catch {

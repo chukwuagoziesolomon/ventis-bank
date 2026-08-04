@@ -27,7 +27,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ user: null });
       }
 
-    const result = await pool.query('SELECT id, name, email, role, image, phone, address, "createdAt" FROM "User" WHERE id = $1', [userId]);
+    const result = await pool.query('SELECT id, name, email, role, image, phone, address, locked, "createdAt" FROM "User" WHERE id = $1', [userId]);
     const user = result.rows[0];
 
     if (!user) {
@@ -53,6 +53,7 @@ export async function GET(request: Request) {
         createdAt: user.createdAt,
         role: user.role || "user",
         image: user.image ?? null,
+        locked: user.locked ?? false,
       },
     });
     } catch {

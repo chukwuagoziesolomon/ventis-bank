@@ -7,7 +7,14 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import { Account, Card, Transaction, VantisUser } from "./types";
+import {
+  Account,
+  Card,
+  Transaction,
+  VantisUser,
+  SupportConversation,
+  SupportMessage,
+} from "./types";
 import { generateAccountNumber, generateCardNumber, generateId } from "./utils";
 
 interface VantisState {
@@ -53,8 +60,14 @@ interface VantisContextValue extends VantisState {
   rejectUser: (userId: string) => Promise<{ ok: boolean; error?: string }>;
   blockUser: (userId: string) => Promise<{ ok: boolean; error?: string }>;
   unblockUser: (userId: string) => Promise<{ ok: boolean; error?: string }>;
+  lockUser: (userId: string) => Promise<{ ok: boolean; error?: string }>;
+  unlockUser: (userId: string) => Promise<{ ok: boolean; error?: string }>;
   toggleAdmin: (userId: string, currentRole: string) => Promise<{ ok: boolean; role?: string; error?: string }>;
   backfillUser: (userId: string) => Promise<{ ok: boolean; count?: number; error?: string }>;
+  fetchSupportConversation: () => Promise<SupportConversation>;
+  sendSupportMessage: (text: string) => Promise<{ ok: boolean; error?: string }>;
+  fetchAllSupportConversations: () => Promise<Array<SupportConversation & { name: string; email: string }>>;
+  sendAdminSupportReply: (userId: string, text: string) => Promise<{ ok: boolean; error?: string }>;
   refreshData: () => Promise<void>;
   totalBalance: number;
   myAccountForReceiving: Account;
@@ -255,6 +268,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const sendMoney = useCallback(async ({ recipient, accountNumber, amount, note, fromAccountId }: SendMoneyInput) => {
     if (!state.user?.id) return { ok: false, error: "Not authenticated." };
 
+    if (state.user.locked) {
+      return { ok: false, error: "Your account is locked. Please contact support." };
+    }
+
+    const tempId = generateId("tx");
+
     setState((prev) => {
       const account = prev.accounts.find((a) => a.id === fromAccountId);
       if (!account) return prev;
@@ -262,7 +281,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       if (amount > account.balance) return prev;
 
       const newTx: Transaction = {
-        id: generateId("tx"),
+        id: tempId,
         title: `To ${recipient}`,
         category: "Transfer",
         amount: -amount,
@@ -301,11 +320,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             accounts: prev.accounts.map((a) =>
               a.id === fromAccountId ? { ...a, balance: a.balance + amount } : a
             ),
-            transactions: prev.transactions.filter((t) => t.id !== generateId("tx")),
+            transactions: prev.transactions.filter((t) => t.id !== tempId),
           };
         });
         return { ok: false, error: data.error ?? "Transfer failed." };
       }
+
+      setState((prev) => ({
+        ...prev,
+        transactions: prev.transactions.map((t) =>
+          t.id === tempId
+            ? { ...t, id: data.id ?? t.id, status: data.status ?? "pending" }
+            : t
+        ),
+      }));
+
       return { ok: true };
     } catch {
       setState((prev) => {
@@ -316,7 +345,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           accounts: prev.accounts.map((a) =>
             a.id === fromAccountId ? { ...a, balance: a.balance + amount } : a
           ),
-          transactions: prev.transactions.filter((t) => t.id !== generateId("tx")),
+          transactions: prev.transactions.filter((t) => t.id !== tempId),
         };
       });
       return { ok: false, error: "Network error." };
@@ -504,6 +533,28 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return { ok: true };
   }, []);
 
+  const lockUser = useCallback(async (userId: string) => {
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ locked: true }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { ok: false, error: data.error };
+    return { ok: true };
+  }, []);
+
+  const unlockUser = useCallback(async (userId: string) => {
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ locked: false }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { ok: false, error: data.error };
+    return { ok: true };
+  }, []);
+
   const toggleAdmin = useCallback(async (userId: string, currentRole: string) => {
     const newRole = currentRole === "admin" ? "user" : "admin";
     const res = await fetch(`/api/admin/users/${userId}`, {
@@ -514,6 +565,49 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const data = await res.json();
     if (!res.ok) return { ok: false, error: data.error };
     return { ok: true, role: data.user?.role };
+  }, []);
+
+  const fetchSupportConversation = useCallback(async () => {
+    if (!state.user?.id) throw new Error("Not authenticated");
+    const res = await fetch("/api/support/conversation", {
+      headers: { "x-user-id": state.user.id },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? "Failed to load support conversation.");
+    return data.conversation as SupportConversation;
+  }, [state.user?.id]);
+
+  const sendSupportMessage = useCallback(async (text: string) => {
+    if (!state.user?.id) return { ok: false, error: "Not authenticated." };
+    const res = await fetch("/api/support/message", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-user-id": state.user.id,
+      },
+      body: JSON.stringify({ text }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { ok: false, error: data.error ?? "Failed to send support message." };
+    return { ok: true };
+  }, [state.user?.id]);
+
+  const fetchAllSupportConversations = useCallback(async () => {
+    const res = await fetch("/api/admin/support");
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? "Failed to load support conversations.");
+    return data.conversations as Array<SupportConversation & { name: string; email: string }>;
+  }, []);
+
+  const sendAdminSupportReply = useCallback(async (userId: string, text: string) => {
+    const res = await fetch("/api/admin/support", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, text }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { ok: false, error: data.error ?? "Failed to send reply." };
+    return { ok: true };
   }, []);
 
   const totalBalance = state.accounts.reduce((sum, a) => sum + a.balance, 0);
@@ -542,8 +636,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     rejectUser,
     blockUser,
     unblockUser,
+    lockUser,
+    unlockUser,
     toggleAdmin,
     backfillUser,
+    fetchSupportConversation,
+    sendSupportMessage,
+    fetchAllSupportConversations,
+    sendAdminSupportReply,
     refreshData,
     totalBalance,
     myAccountForReceiving,

@@ -7,10 +7,11 @@ export interface VantisUser {
   address: string;
   image: string;
   role: "user" | "admin";
+  locked: boolean;
   createdAt: string;
 }
 
-export type UserStatus = "pending" | "approved" | "rejected";
+export type UserStatus = "pending" | "approved" | "rejected" | "blocked";
 
 export interface PendingUser {
   id: string;
@@ -58,4 +59,18 @@ export interface Transaction {
   direction: "credit" | "debit";
   counterparty: string;
   status: TxStatus;
+}
+
+export interface SupportMessage {
+  id: string;
+  userId: string;
+  from: "user" | "admin";
+  text: string;
+  date: string;
+}
+
+export interface SupportConversation {
+  userId: string;
+  messages: SupportMessage[];
+  updatedAt: string;
 }

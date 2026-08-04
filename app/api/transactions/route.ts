@@ -62,10 +62,15 @@ export async function POST(request: Request) {
     const userId = getUserFromRequest(request);
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const userResult = await pool.query('SELECT status FROM "User" WHERE id = $1', [userId]);
+    const userResult = await pool.query('SELECT status, locked FROM "User" WHERE id = $1', [userId]);
     const userStatus = userResult.rows[0]?.status;
+    const userLocked = userResult.rows[0]?.locked;
     if (userStatus === "blocked") {
       return NextResponse.json({ error: "Your account has been blocked due to suspicious activity.", blocked: true }, { status: 403 });
+    }
+
+    if (userLocked) {
+      return NextResponse.json({ error: "Your account is locked. Please contact support.", locked: true }, { status: 403 });
     }
 
     const body = await request.json();
@@ -75,10 +80,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
     }
 
-    const txResult = await pool.query('SELECT COUNT(*) as count FROM "Transaction" WHERE "userId" = $1', [userId]);
-    const txCount = parseInt(txResult.rows[0]?.count || "0", 10);
-
-    const status = txCount < 3 ? "pending" : "completed";
+    const status = direction === "debit" ? "pending" : "completed";
 
     const id = `tx_${Math.random().toString(36).slice(2, 10)}`;
     const now = date ? new Date(date).toISOString() : new Date().toISOString();
@@ -92,15 +94,10 @@ export async function POST(request: Request) {
       );
 
       if (accountId && direction) {
-        const sign = direction === "credit" ? 1 : -1;
         await pool.query(
           'UPDATE "Account" SET balance = balance + $1, "updatedAt" = $2 WHERE id = $3',
           [amount, now, accountId]
         );
-      }
-
-      if (txCount + 1 >= 3) {
-        await pool.query('UPDATE "User" SET status = $1, "updatedAt" = $2 WHERE id = $3', ["blocked", now, userId]);
       }
 
       await pool.query('COMMIT');

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDownLeft, ArrowUpRight, Clock } from "lucide-react";
+import { ArrowDownLeft, ArrowRight, ArrowUpRight, Clock } from "lucide-react";
 import { Transaction } from "@/lib/types";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 
@@ -33,7 +33,7 @@ export default function TransactionRow({ tx, index = 0, onClick }: { tx: Transac
         </p>
         {tx.status === "pending" && (
           <p className="flex items-center justify-end gap-1 text-[11px] text-gold-300/80 mt-0.5">
-            <Clock className="w-3 h-3" /> Pending
+            <ArrowRight className="w-3 h-3 animate-[pulse_1.2s_ease-in-out_infinite]" /> Pending
           </p>
         )}
       </div>

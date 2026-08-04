@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Landmark, Clock, Check, X, Shield, Ban, Unlock, RefreshCw } from "lucide-react";
+import { Landmark, Clock, Check, X, Shield, Ban, Unlock, RefreshCw, Lock } from "lucide-react";
 import { useVantis } from "@/lib/store";
 
 type UserStatus = "pending" | "approved" | "rejected" | "blocked";
@@ -13,12 +13,13 @@ interface AdminUser {
   createdAt: string;
   status: UserStatus;
   role: string;
+  locked: boolean;
   balance: number;
   transactionCount?: number;
 }
 
 export default function AdminUsersPage() {
-  const { fetchPendingUsers, approveUser, rejectUser, blockUser, unblockUser, backfillUser, toggleAdmin } = useVantis();
+  const { fetchPendingUsers, approveUser, rejectUser, blockUser, unblockUser, lockUser, unlockUser, backfillUser, toggleAdmin } = useVantis();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -81,6 +82,24 @@ export default function AdminUsersPage() {
     }
   }
 
+  async function handleLock(id: string) {
+    setActionLoading(id);
+    const result = await lockUser(id);
+    setActionLoading(null);
+    if (result.ok) {
+      await loadUsers();
+    }
+  }
+
+  async function handleUnlock(id: string) {
+    setActionLoading(id);
+    const result = await unlockUser(id);
+    setActionLoading(null);
+    if (result.ok) {
+      await loadUsers();
+    }
+  }
+
   async function handleBackfill(id: string) {
     setActionLoading(id);
     const result = await backfillUser(id);
@@ -93,7 +112,7 @@ export default function AdminUsersPage() {
     }
   }
 
-  function getStatusBadge(status: UserStatus) {
+  function getStatusBadge(status: UserStatus, locked: boolean) {
     const styles = {
       pending: "bg-gold-400/10 text-gold-300 border-gold-400/20",
       approved: "bg-teal-400/10 text-teal-300 border-teal-400/20",
@@ -105,6 +124,15 @@ export default function AdminUsersPage() {
         {status === "blocked" && <Ban className="w-3 h-3" />}
         {status === "approved" && <Shield className="w-3 h-3" />}
         {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+  }
+
+  function getLockedBadge(locked: boolean) {
+    if (!locked) return null;
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border bg-amber-400/10 text-amber-300 border-amber-400/20">
+        <Lock className="w-3 h-3" /> Locked
       </span>
     );
   }
@@ -123,14 +151,22 @@ export default function AdminUsersPage() {
   return (
     <div className="min-h-screen bg-ink-900">
       <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8">
-        <div className="flex items-center gap-3 mb-8">
-          <span className="grid place-items-center w-10 h-10 rounded-xl bg-gold-400/10 border border-gold-400/30 text-gold-300">
-            <Landmark className="w-5 h-5" />
-          </span>
-          <div>
-            <h1 className="font-display text-2xl text-bone">Admin Dashboard</h1>
-            <p className="text-sm text-bone/40">Manage users, approvals, balances, and account status</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <span className="grid place-items-center w-10 h-10 rounded-xl bg-gold-400/10 border border-gold-400/30 text-gold-300">
+              <Landmark className="w-5 h-5" />
+            </span>
+            <div>
+              <h1 className="font-display text-2xl text-bone">Admin Dashboard</h1>
+              <p className="text-sm text-bone/40">Manage users, approvals, balances, and account status</p>
+            </div>
           </div>
+          <a
+            href="/admin/support"
+            className="inline-flex items-center gap-2 rounded-2xl bg-gold-400/10 px-4 py-2 text-sm font-semibold text-gold-300 border border-gold-400/20 hover:bg-gold-400/20 transition-colors"
+          >
+            <Shield className="w-4 h-4" /> Support inbox
+          </a>
         </div>
 
         {loading ? (
@@ -150,7 +186,8 @@ export default function AdminUsersPage() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
                     <p className="text-bone font-medium">{user.name}</p>
-                    {getStatusBadge(user.status)}
+                    {getStatusBadge(user.status, user.locked)}
+                    {getLockedBadge(user.locked)}
                     {getRoleBadge(user.role)}
                   </div>
                   <p className="text-sm text-bone/40">{user.email}</p>
@@ -197,6 +234,23 @@ export default function AdminUsersPage() {
                       >
                         <RefreshCw className="w-4 h-4" /> Backfill History
                       </button>
+                      {user.locked ? (
+                        <button
+                          onClick={() => handleUnlock(user.id)}
+                          disabled={actionLoading === user.id}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-teal-400/10 text-teal-300 border border-teal-400/20 hover:bg-teal-400/20 text-sm font-medium transition-colors disabled:opacity-50"
+                        >
+                          <Unlock className="w-4 h-4" /> Unlock
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleLock(user.id)}
+                          disabled={actionLoading === user.id}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-400/10 text-amber-300 border border-amber-400/20 hover:bg-amber-400/20 text-sm font-medium transition-colors disabled:opacity-50"
+                        >
+                          <Lock className="w-4 h-4" /> Lock
+                        </button>
+                      )}
                       <button
                         onClick={() => handleBlock(user.id)}
                         disabled={actionLoading === user.id}

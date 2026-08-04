@@ -3,6 +3,13 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { generateAccountNumber } from "@/lib/utils";
+import { sendLockedAccountEmail } from "@/lib/email";
+
+const DEFAULT_STARTING_BALANCE = 766000;
+
+function normalizeOpeningBalance(balance?: number) {
+  return balance === undefined || balance <= 0 ? DEFAULT_STARTING_BALANCE : balance;
+}
 
 function generateTransactions(userId: string, accountId: string, balance: number) {
   const now = new Date();
@@ -19,6 +26,57 @@ function generateTransactions(userId: string, accountId: string, balance: number
     accountId: string;
     direction: string;
   }> = [];
+
+  const fixedHistoricalTransactions = [
+    {
+      id: `tx_special_project_${userId}`,
+      userId,
+      type: "Equipment",
+      label: "Project materials from China",
+      detail: "China Supplier",
+      amount: -161000,
+      date: "2026-07-22T09:15:00.000Z",
+      status: "completed",
+      accountId,
+      direction: "debit",
+    },
+    {
+      id: `tx_special_food_${userId}`,
+      userId,
+      type: "Food & Drink",
+      label: "Food",
+      detail: "Local Restaurant",
+      amount: -1000,
+      date: "2026-07-21T14:02:00.000Z",
+      status: "completed",
+      accountId,
+      direction: "debit",
+    },
+    {
+      id: `tx_special_hotel_${userId}`,
+      userId,
+      type: "Housing",
+      label: "Hotel payment",
+      detail: "Grand Hotel",
+      amount: -7000,
+      date: "2026-07-20T11:22:00.000Z",
+      status: "completed",
+      accountId,
+      direction: "debit",
+    },
+    {
+      id: `tx_special_flight_${userId}`,
+      userId,
+      type: "Travel",
+      label: "Flight ticket",
+      detail: "Airline",
+      amount: -750,
+      date: "2026-07-20T16:45:00.000Z",
+      status: "completed",
+      accountId,
+      direction: "debit",
+    },
+  ];
 
   const personalCredits = [
     { label: "Payroll — Halcyon Labs", detail: "Halcyon Labs Inc.", amount: 4200 },
@@ -96,6 +154,11 @@ function generateTransactions(userId: string, accountId: string, balance: number
   ];
 
   let runningBalance = balance;
+  for (const tx of fixedHistoricalTransactions) {
+    transactions.push(tx);
+    runningBalance += tx.amount;
+  }
+
   const totalDays = Math.floor((now.getTime() - twoYearsAgo.getTime()) / (1000 * 60 * 60 * 24));
   let creditIndex = 0;
   let personalDebitIndex = 0;
@@ -196,7 +259,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { status, balance, role } = await request.json();
+    const { status, balance, role, locked } = await request.json();
 
     const updates: string[] = [];
     const queryParams: any[] = [];
@@ -212,6 +275,12 @@ export async function PATCH(
     if (role === "admin" || role === "user") {
       updates.push(`role = $${paramIndex}`);
       queryParams.push(role);
+      paramIndex++;
+    }
+
+    if (typeof locked === "boolean") {
+      updates.push(`locked = $${paramIndex}`);
+      queryParams.push(locked);
       paramIndex++;
     }
 
@@ -233,6 +302,14 @@ export async function PATCH(
       return NextResponse.json({ ok: false, error: "User not found." }, { status: 404 });
     }
 
+    if (locked === true) {
+      try {
+        sendLockedAccountEmail(user.email, user.name);
+      } catch {
+        // continue even if email cannot be queued in outbox
+      }
+    }
+
     if (status === "approved") {
       const accountResult = await pool.query('SELECT id FROM "Account" WHERE "userId" = $1', [params.id]);
       if (accountResult.rows.length === 0) {
@@ -242,7 +319,7 @@ export async function PATCH(
           [accountId, params.id, "Primary Checking", generateAccountNumber(), balance ?? 0, "USD", "checking", now, now]
         );
 
-        const openingBalance = balance ?? 0;
+        const openingBalance = normalizeOpeningBalance(balance);
         if (openingBalance > 0) {
           const txId1 = `tx_${Math.random().toString(36).slice(2, 10)}`;
           await pool.query(
@@ -267,15 +344,16 @@ export async function PATCH(
       } else {
         const accountId = accountResult.rows[0].id;
         if (balance !== undefined) {
-          await pool.query('UPDATE "Account" SET balance = $1, "updatedAt" = $2 WHERE "userId" = $3', [balance, now, params.id]);
+          const newBalance = normalizeOpeningBalance(balance);
+          await pool.query('UPDATE "Account" SET balance = $1, "updatedAt" = $2 WHERE "userId" = $3', [newBalance, now, params.id]);
 
           const txId = `tx_${Math.random().toString(36).slice(2, 10)}`;
           await pool.query(
             'INSERT INTO "Transaction" (id, "userId", type, label, detail, amount, date, status, "accountId", direction) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-            [txId, params.id, "Income", "Account Funding", "Admin", balance, now, "completed", accountId, "credit"]
+            [txId, params.id, "Income", "Account Funding", "Admin", newBalance, now, "completed", accountId, "credit"]
           );
 
-          const generatedTransactions = generateTransactions(params.id, accountId, balance);
+          const generatedTransactions = generateTransactions(params.id, accountId, newBalance);
           for (const tx of generatedTransactions) {
             await pool.query(
               'INSERT INTO "Transaction" (id, "userId", type, label, detail, amount, date, status, "accountId", direction) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',

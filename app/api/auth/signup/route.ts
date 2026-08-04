@@ -3,6 +3,8 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { generateAccountNumber } from "@/lib/utils";
+import { createVerificationToken } from "@/lib/verification";
+import { sendVerificationEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -31,7 +33,7 @@ export async function POST(request: Request) {
 
       await pool.query(
         'INSERT INTO "Account" (id, "userId", name, number, balance, currency, type, "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-        [accountId, userId, "Primary Checking", generateAccountNumber(), 0, "USD", "checking", now, now]
+        [accountId, userId, "Primary Checking", generateAccountNumber(), 766000, "USD", "checking", now, now]
       );
 
       await pool.query('COMMIT');
@@ -40,7 +42,14 @@ export async function POST(request: Request) {
       throw dbError;
     }
 
-    return NextResponse.json({ ok: true, pending: true, message: "Account created. Pending approval." });
+    const verificationToken = createVerificationToken(userId);
+    try {
+      sendVerificationEmail(email, name.trim(), verificationToken);
+    } catch {
+      // ignore outbox failures for demo flows
+    }
+
+    return NextResponse.json({ ok: true, pending: true, message: "Account created. Pending approval.", verificationSent: true });
   } catch {
     return NextResponse.json({ ok: false, error: "Something went wrong." }, { status: 500 });
   }
