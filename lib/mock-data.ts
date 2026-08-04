@@ -194,7 +194,7 @@ export const seedTransactions: Transaction[] = [
     date: "2026-07-01T00:00:00.000Z",
     accountId: "acc_savings",
     direction: "credit",
-    counterparty: "Vantis Bank",
+    counterparty: "MidwesternBank",
     status: "completed",
   },
   {

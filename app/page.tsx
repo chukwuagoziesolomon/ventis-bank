@@ -86,7 +86,7 @@ export default function LandingPage() {
             <span className="grid place-items-center w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/30 text-gold-300">
               <Landmark className="w-[18px] h-[18px]" />
             </span>
-            <span className="font-display text-xl text-bone">Vantis</span>
+            <span className="font-display text-xl text-bone">MidwesternBank</span>
           </div>
 
           <nav className="hidden md:flex items-center gap-8">
@@ -140,7 +140,7 @@ export default function LandingPage() {
               Banking that <span className="italic text-gold-300">moves</span> with you.
             </h1>
             <p className="text-base sm:text-lg text-bone/50 mt-6 max-w-md">
-              Send, receive, and manage your money without the wait. Vantis gives you full control of every dollar, in real time.
+              Send, receive, and manage your money without the wait. MidwesternBank gives you full control of every dollar, in real time.
             </p>
             <div className="flex flex-wrap gap-3 mt-9">
               <Link
@@ -274,7 +274,7 @@ export default function LandingPage() {
             Your money, finally on your terms.
           </h2>
           <p className="relative text-bone/50 max-w-md mx-auto mb-8">
-            Open a Vantis account in under two minutes. No paperwork, no branch visit.
+            Open a MidwesternBank account in under two minutes. No paperwork, no branch visit.
           </p>
           <Link
             href="/signup"

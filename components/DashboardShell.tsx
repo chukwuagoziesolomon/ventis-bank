@@ -43,7 +43,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <span className="grid place-items-center w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/30 text-gold-300">
           <Landmark className="w-[18px] h-[18px]" />
         </span>
-        <span className="font-display text-xl tracking-wide text-bone">Vantis</span>
+        <span className="font-display text-xl tracking-wide text-bone">MidwesternBank</span>
       </Link>
 
       <nav className="flex-1 space-y-1">

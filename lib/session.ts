@@ -4,6 +4,11 @@ export interface Session {
   name: string;
 }
 
+export function createSessionToken(userId: string): string {
+  const data = `${userId}:${Date.now()}:${Math.random()}`;
+  return Buffer.from(`${data}:${Buffer.from(data).toString("base64")}`).toString("base64");
+}
+
 export function getSessionCookie(): string | undefined {
   if (typeof document === "undefined") return undefined;
   const match = document.cookie.match(/(?:^|; )vantis_session=([^;]*)/);

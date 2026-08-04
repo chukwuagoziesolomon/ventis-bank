@@ -6,8 +6,8 @@ import { Plus } from "lucide-react";
 
 const faqs = [
   {
-    q: "Is Vantis a real bank?",
-    a: "Vantis operates through a partnership with an FDIC-insured bank, so your deposits are insured up to $250,000 per depositor, the same protection you'd get from any national bank.",
+    q: "Is MidwesternBank a real bank?",
+    a: "MidwesternBank operates through a partnership with an FDIC-insured bank, so your deposits are insured up to $250,000 per depositor, the same protection you'd get from any national bank.",
   },
   {
     q: "Are there monthly fees?",
@@ -15,15 +15,15 @@ const faqs = [
   },
   {
     q: "How fast do transfers arrive?",
-    a: "Transfers between Vantis accounts are instant. Transfers to external banks typically arrive within one business day.",
+    a: "Transfers between MidwesternBank accounts are instant. Transfers to external banks typically arrive within one business day.",
   },
   {
     q: "Can I freeze a card if I lose it?",
     a: "Yes. Freezing and unfreezing a card takes one tap in the app and applies immediately, no call required.",
   },
   {
-    q: "What happens to my money if Vantis shuts down?",
-    a: "Your deposits sit with our FDIC-insured partner bank, not with Vantis directly, so they remain insured and accessible regardless of what happens to Vantis as a company.",
+    q: "What happens to my money if MidwesternBank shuts down?",
+    a: "Your deposits sit with our FDIC-insured partner bank, not with MidwesternBank directly, so they remain insured and accessible regardless of what happens to MidwesternBank as a company.",
   },
 ];
 

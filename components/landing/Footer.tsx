@@ -32,7 +32,7 @@ export default function Footer() {
               <span className="grid place-items-center w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/30 text-gold-300">
                 <Landmark className="w-[18px] h-[18px]" />
               </span>
-              <span className="font-display text-xl text-bone">Vantis</span>
+              <span className="font-display text-xl text-bone">MidwesternBank</span>
             </div>
             <p className="text-sm text-bone/40 max-w-xs leading-relaxed">
               Banking that moves with you. Send, receive, and manage your money without the wait.
@@ -67,9 +67,9 @@ export default function Footer() {
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-14 pt-8 border-t border-white/5 text-xs text-bone/30">
           <div className="flex items-center gap-2">
-            <Landmark className="w-4 h-4" /> Vantis Bank, N.A. · Member FDIC
+            <Landmark className="w-4 h-4" /> MidwesternBank, N.A. · Member FDIC
           </div>
-          <p>© {new Date().getFullYear()} Vantis. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} MidwesternBank. All rights reserved.</p>
         </div>
       </div>
     </footer>

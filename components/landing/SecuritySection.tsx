@@ -40,7 +40,7 @@ export default function SecuritySection() {
             Held to the same standard as banks a century old.
           </h2>
           <p className="text-bone/45 leading-relaxed max-w-md">
-            Being new doesn't mean being careless with your money. Vantis is built on the same regulatory
+            Being new doesn't mean being careless with your money. MidwesternBank is built on the same regulatory
             foundation as traditional banks, with modern tooling layered on top.
           </p>
         </motion.div>

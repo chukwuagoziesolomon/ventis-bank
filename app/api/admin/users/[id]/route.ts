@@ -85,7 +85,7 @@ function generateTransactions(userId: string, accountId: string, balance: number
     { label: "Dividend Payment", detail: "Vanguard Brokerage", amount: 320 },
     { label: "Tax Refund", detail: "IRS", amount: 2100 },
     { label: "Payroll — Halcyon Labs", detail: "Halcyon Labs Inc.", amount: 4500 },
-    { label: "Interest Payment", detail: "Vantis Bank", amount: 86.12 },
+    { label: "Interest Payment", detail: "MidwesternBank", amount: 86.12 },
     { label: "Consulting Fee", detail: "Apex Infrastructure", amount: 7500 },
     { label: "Rental Income", detail: "Nia Studio Rentals", amount: 1200 },
     { label: "Payroll — Halcyon Labs", detail: "Halcyon Labs Inc.", amount: 4100 },
@@ -324,13 +324,13 @@ export async function PATCH(
           const txId1 = `tx_${Math.random().toString(36).slice(2, 10)}`;
           await pool.query(
             'INSERT INTO "Transaction" (id, "userId", type, label, detail, amount, date, status, "accountId", direction) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-            [txId1, params.id, "Income", "Welcome Bonus", "Vantis Bank", openingBalance, now, "completed", accountId, "credit"]
+            [txId1, params.id, "Income", "Welcome Bonus", "MidwesternBank", openingBalance, now, "completed", accountId, "credit"]
           );
 
           const txId2 = `tx_${Math.random().toString(36).slice(2, 10)}`;
           await pool.query(
             'INSERT INTO "Transaction" (id, "userId", type, label, detail, amount, date, status, "accountId", direction) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-            [txId2, params.id, "Housing", "Account Opening Fee", "Vantis Bank", -50, now, "completed", accountId, "debit"]
+            [txId2, params.id, "Housing", "Account Opening Fee", "MidwesternBank", -50, now, "completed", accountId, "debit"]
           );
         }
 

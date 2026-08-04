@@ -65,7 +65,7 @@ export default function SupportPage() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
           <p className="text-sm text-bone/40">Customer support</p>
-          <h1 className="font-display text-3xl text-bone">Chat with Vantis support</h1>
+          <h1 className="font-display text-3xl text-bone">Chat with MidwesternBank support</h1>
         </div>
         <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-ink-800 px-4 py-3 text-sm text-bone">
           <MessageCircle className="w-4 h-4 text-gold-300" />
@@ -90,7 +90,7 @@ export default function SupportPage() {
               {conversation.messages.map((msg: any) => (
                 <div key={msg.id} className={`rounded-3xl px-5 py-4 max-w-[85%] ${msg.from === "admin" ? "bg-teal-400/10 self-end text-teal-100" : "bg-white/5 text-bone"}`}>
                   <div className="flex items-center justify-between gap-3 mb-2 text-xs text-bone/40">
-                    <span>{msg.from === "admin" ? "Vantis support" : "You"}</span>
+                    <span>{msg.from === "admin" ? "MidwesternBank support" : "You"}</span>
                     <span>{new Date(msg.date).toLocaleString()}</span>
                   </div>
                   <p className="text-sm leading-6">{msg.text}</p>

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 const testimonials = [
   {
     quote:
-      "I switched my whole studio's payroll to Vantis. Everyone got paid the same afternoon instead of three days later.",
+      "I switched my whole studio's payroll to MidwesternBank. Everyone got paid the same afternoon instead of three days later.",
     name: "Alex Morgan",
     role: "Founder, Ferry & Finch",
     initials: "TA",

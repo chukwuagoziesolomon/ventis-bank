@@ -10,7 +10,7 @@ export default function ReceiveMoneyPage() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const routingNumber = "084009519";
-  const shareText = `Send me money on Vantis — account ${myAccountForReceiving.number}, routing ${routingNumber}.`;
+    const shareText = `Send me money on MidwesternBank — account ${myAccountForReceiving.number}, routing ${routingNumber}.`;
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&color=243-241-236&bgcolor=11-18-32&data=${encodeURIComponent(
     shareText
   )}`;
@@ -25,7 +25,7 @@ export default function ReceiveMoneyPage() {
   async function share() {
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Vantis account details", text: shareText });
+        await navigator.share({ title: "MidwesternBank account details", text: shareText });
       } catch {
         // user cancelled share sheet
       }
@@ -46,10 +46,10 @@ export default function ReceiveMoneyPage() {
           className="flex flex-col items-center gap-4 pb-8 mb-8 border-b border-white/5"
         >
           <div className="p-3 rounded-2xl bg-ink-950 border border-white/10">
-            <img src={qrSrc} alt="Scannable QR code with your Vantis account details" width={220} height={220} className="rounded-lg" />
+            <img src={qrSrc} alt="Scannable QR code with your MidwesternBank account details" width={220} height={220} className="rounded-lg" />
           </div>
           <p className="text-sm text-bone/40 text-center">
-            {user?.name ?? "You"} · Vantis Bank
+            {user?.name ?? "You"} · MidwesternBank
           </p>
         </motion.div>
 
@@ -74,7 +74,7 @@ export default function ReceiveMoneyPage() {
             onCopy={() => copy("routing", routingNumber)}
             copied={copiedField === "routing"}
           />
-          <DetailField label="Bank" value="Vantis Bank, N.A." onCopy={() => copy("bank", "Vantis Bank, N.A.")} copied={copiedField === "bank"} />
+          <DetailField label="Bank" value="MidwesternBank, N.A." onCopy={() => copy("bank", "MidwesternBank, N.A.")} copied={copiedField === "bank"} />
         </div>
 
         <button

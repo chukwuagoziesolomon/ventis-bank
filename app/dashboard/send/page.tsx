@@ -200,7 +200,7 @@ export default function SendMoneyPage() {
                     <input
                       value={form.routingNumber}
                       onChange={(e) => setForm({ ...form, routingNumber: e.target.value })}
-                      placeholder="9-digit routing number"
+                       placeholder="e.g. 021000021 or SWIFT/BIC"
                       className="w-full bg-ink-700/60 border border-white/10 rounded-xl px-4 py-3 text-bone text-sm placeholder:text-bone/25 focus:border-gold-400/50 outline-none font-mono"
                     />
                   </div>

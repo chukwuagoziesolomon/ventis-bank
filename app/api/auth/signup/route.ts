@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { generateAccountNumber } from "@/lib/utils";
-import { createVerificationToken } from "@/lib/verification";
+import { createVerificationCode } from "@/lib/verification";
 import { sendVerificationEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
@@ -42,9 +42,9 @@ export async function POST(request: Request) {
       throw dbError;
     }
 
-    const verificationToken = createVerificationToken(userId);
+    const verificationCode = createVerificationCode(userId);
     try {
-      sendVerificationEmail(email, name.trim(), verificationToken);
+      sendVerificationEmail(email, name.trim(), verificationCode);
     } catch {
       // ignore outbox failures for demo flows
     }

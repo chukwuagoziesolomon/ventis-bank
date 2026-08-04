@@ -62,7 +62,7 @@ export default function SignupPage() {
           <span className="grid place-items-center w-10 h-10 rounded-xl bg-gold-400/10 border border-gold-400/30 text-gold-300">
             <Landmark className="w-5 h-5" />
           </span>
-          <span className="font-display text-2xl text-bone">Vantis</span>
+          <span className="font-display text-2xl text-bone">MidwesternBank</span>
         </Link>
         <div className="relative z-10 max-w-md space-y-6">
           {steps.map((label, i) => (
@@ -92,7 +92,7 @@ export default function SignupPage() {
             <span className="grid place-items-center w-9 h-9 rounded-xl bg-gold-400/10 border border-gold-400/30 text-gold-300">
               <Landmark className="w-[18px] h-[18px]" />
             </span>
-            <span className="font-display text-xl text-bone">Vantis</span>
+            <span className="font-display text-xl text-bone">MidwesternBank</span>
           </Link>
 
           {stepIndex < 2 ? (
@@ -194,7 +194,7 @@ export default function SignupPage() {
                 <Clock className="w-7 h-7 text-gold-300" />
               </motion.div>
               <p className="font-display text-2xl text-bone">Account under review</p>
-              <p className="text-sm text-bone/40 mt-2">We're reviewing your details, {form.name.split(" ")[0]}.</p>
+              <p className="text-sm text-bone/40 mt-2">We sent a verification code to {form.email}. Enter it on the verification page to confirm your email.</p>
             </motion.div>
           )}
         </motion.div>
@@ -204,15 +204,21 @@ export default function SignupPage() {
               Thanks for signing up, {form.name.split(" ")[0]}! Your account details are currently being reviewed by our team.
             </p>
             <p className="text-sm text-bone/40">
-              We also sent a verification link to your email address. Verify your email to prepare your account for login once approval is complete.
+              We also sent a verification code to your email address. Enter the code on the verification page to prepare your account for login once approval is complete.
             </p>
             <p className="text-sm text-bone/40">
               This usually takes a few minutes. If you don't see the message, check your spam folder.
             </p>
-            <div className="pt-4">
+            <div className="pt-4 flex gap-3">
+              <button
+                onClick={() => router.push("/auth/verify")}
+                className="flex-1 bg-gold-400 hover:bg-gold-300 text-ink-950 font-semibold py-3 rounded-xl transition-colors"
+              >
+                Verify email
+              </button>
               <button
                 onClick={() => router.push("/login")}
-                className="w-full bg-gold-400 hover:bg-gold-300 text-ink-950 font-semibold py-3 rounded-xl transition-colors"
+                className="flex-1 bg-white/5 hover:bg-white/10 text-bone font-semibold py-3 rounded-xl transition-colors border border-white/10"
               >
                 Go to login
               </button>

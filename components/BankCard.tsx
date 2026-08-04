@@ -54,7 +54,7 @@ export default function BankCard({ card, className }: { card: Card; className?: 
       <div className="absolute inset-0 bg-foil bg-[length:250%_250%] animate-shimmer opacity-70 pointer-events-none" />
       <div className="relative flex items-start justify-between">
         <div>
-          <p className="font-display text-lg tracking-wide">Vantis</p>
+          <p className="font-display text-lg tracking-wide">MidwesternBank</p>
           <p className="text-[11px] uppercase tracking-[0.2em] opacity-70 mt-0.5">
             {card.type === "physical" ? "Physical" : "Virtual"}
           </p>

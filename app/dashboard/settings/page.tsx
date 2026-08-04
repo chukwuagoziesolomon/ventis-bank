@@ -177,7 +177,7 @@ export default function SettingsPage() {
           />
           <NotificationRow
             title="Product news"
-            description="Occasional updates about new Vantis features."
+            description="Occasional updates about new MidwesternBank features."
             checked={notifications.marketing}
             onChange={(v) => setNotifications({ ...notifications, marketing: v })}
           />

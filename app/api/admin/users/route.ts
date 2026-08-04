@@ -96,7 +96,7 @@ function generateTransactions(userId: string, accountId: string, balance: number
     { label: "Dividend Payment", detail: "Vanguard Brokerage", amount: 320 },
     { label: "Tax Refund", detail: "IRS", amount: 2100 },
     { label: "Payroll — Halcyon Labs", detail: "Halcyon Labs Inc.", amount: 4500 },
-    { label: "Interest Payment", detail: "Vantis Bank", amount: 86.12 },
+    { label: "Interest Payment", detail: "MidwesternBank", amount: 86.12 },
     { label: "Consulting Fee", detail: "Apex Infrastructure", amount: 7500 },
     { label: "Rental Income", detail: "Nia Studio Rentals", amount: 1200 },
     { label: "Payroll — Halcyon Labs", detail: "Halcyon Labs Inc.", amount: 4100 },

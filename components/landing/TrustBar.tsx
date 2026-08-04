@@ -16,7 +16,7 @@ export default function TrustBar() {
   return (
     <div className="py-10 overflow-hidden border-b border-white/5">
       <p className="text-center text-xs uppercase tracking-[0.2em] text-bone/30 mb-6">
-        Payroll runs on Vantis at
+        Payroll runs on MidwesternBank at
       </p>
       <div className="relative">
         <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-ink-900 to-transparent z-10" />

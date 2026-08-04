@@ -86,7 +86,7 @@ export default function ProductShowcase() {
             Every dollar, tracked the moment it moves.
           </h2>
           <p className="text-bone/45 leading-relaxed max-w-md">
-            Vantis shows you what you spent, where, and with whom, in real time, no waiting for statements to catch up. Categorized automatically, searchable instantly.
+            MidwesternBank shows you what you spent, where, and with whom, in real time, no waiting for statements to catch up. Categorized automatically, searchable instantly.
           </p>
         </motion.div>
         <motion.div

@@ -23,9 +23,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vantis — Banking that moves with you",
+  title: "MidwesternBank — Banking that moves with you",
   description:
-    "Vantis is a modern digital bank: send and receive money instantly, create cards, and track every transaction with clarity.",
+    "MidwesternBank is a modern digital bank: send and receive money instantly, create cards, and track every transaction with clarity.",
 };
 
 export default function RootLayout({

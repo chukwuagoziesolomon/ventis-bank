@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import AnimatedNumber from "@/components/AnimatedNumber";
 
 const stats = [
-  { value: 82000, prefix: "", suffix: "+", decimals: 0, label: "People banking with Vantis" },
+  { value: 82000, prefix: "", suffix: "+", decimals: 0, label: "People banking with MidwesternBank" },
   { value: 148, prefix: "$", suffix: "M+", decimals: 0, label: "Moved between accounts monthly" },
   { value: 4.9, prefix: "", suffix: "/5", decimals: 1, label: "Average app rating" },
   { value: 60, prefix: "", suffix: "s", decimals: 0, label: "Average time to open an account" },

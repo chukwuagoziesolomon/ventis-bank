@@ -1,4 +1,4 @@
-# Vantis — a fully animated digital banking UI (Next.js)
+# MidwesternBank — a fully animated digital banking UI (Next.js)
 
 A complete, mobile-responsive banking web app built with **Next.js 14 (App Router)**, **TypeScript**, **Tailwind CSS**, and **Framer Motion**.
 

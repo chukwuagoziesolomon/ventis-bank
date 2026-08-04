@@ -5,10 +5,10 @@ const VERIFICATION_PATH = path.resolve(process.cwd(), "data", "verification.json
 
 interface VerificationRecord {
   userId: string;
-  token: string;
+  code: string;
   verified: boolean;
   createdAt: string;
-  verifiedAt?: string;
+  expiresAt: string;
 }
 
 function ensureVerificationFile() {
@@ -27,44 +27,62 @@ function saveVerificationRecords(records: VerificationRecord[]) {
   fs.writeFileSync(VERIFICATION_PATH, JSON.stringify(records, null, 2));
 }
 
-export function createVerificationToken(userId: string) {
+export function createVerificationCode(userId: string): string {
   const records = loadVerificationRecords();
-  const token = `verify_${Math.random().toString(36).slice(2, 16)}`;
-  const now = new Date().toISOString();
-  const record: VerificationRecord = { userId, token, verified: false, createdAt: now };
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 15 * 60 * 1000).toISOString();
+  const record: VerificationRecord = {
+    userId,
+    code,
+    verified: false,
+    createdAt: now.toISOString(),
+    expiresAt,
+  };
   const filtered = records.filter((r) => r.userId !== userId);
   filtered.push(record);
   saveVerificationRecords(filtered);
-  return token;
+  return code;
 }
 
-export function markEmailVerified(userId: string) {
+export function verifyCode(code: string): string | null {
   const records = loadVerificationRecords();
-  const record = records.find((r) => r.userId === userId);
-  if (!record) return false;
-  record.verified = true;
-  record.verifiedAt = new Date().toISOString();
-  saveVerificationRecords(records);
-  return true;
-}
-
-export function verifyToken(token: string) {
-  const records = loadVerificationRecords();
-  const record = records.find((r) => r.token === token);
+  const record = records.find((r) => r.code === code && !r.verified);
   if (!record) return null;
+  if (new Date(record.expiresAt) < new Date()) return null;
   record.verified = true;
-  record.verifiedAt = new Date().toISOString();
   saveVerificationRecords(records);
   return record.userId;
 }
 
-export function isEmailVerified(userId: string) {
+export function createLoginCode(userId: string): string {
+  const records = loadVerificationRecords();
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 10 * 60 * 1000).toISOString();
+  const record: VerificationRecord = {
+    userId,
+    code,
+    verified: false,
+    createdAt: now.toISOString(),
+    expiresAt,
+  };
+  const filtered = records.filter((r) => r.userId !== userId || r.code === code);
+  filtered.push(record);
+  saveVerificationRecords(filtered);
+  return code;
+}
+
+export function verifyLoginCode(code: string): string | null {
+  const records = loadVerificationRecords();
+  const record = records.find((r) => r.code === code && !r.verified);
+  if (!record) return null;
+  if (new Date(record.expiresAt) < new Date()) return null;
+  return record.userId;
+}
+
+export function isEmailVerified(userId: string): boolean {
   const records = loadVerificationRecords();
   const record = records.find((r) => r.userId === userId);
   return record?.verified === true;
-}
-
-export function getVerificationToken(userId: string) {
-  const records = loadVerificationRecords();
-  return records.find((r) => r.userId === userId)?.token;
 }
