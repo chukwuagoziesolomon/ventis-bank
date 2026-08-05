@@ -39,18 +39,20 @@ export async function POST(request: Request) {
       await pool.query('COMMIT');
     } catch (dbError) {
       await pool.query('ROLLBACK');
-      throw dbError;
+      console.error("Signup DB error:", dbError);
+      return NextResponse.json({ ok: false, error: `Database error: ${dbError instanceof Error ? dbError.message : "Unknown error"}` }, { status: 500 });
     }
 
     const verificationCode = createVerificationCode(userId);
     try {
       await sendVerificationEmail(email, name.trim(), verificationCode);
-    } catch {
-      // ignore outbox failures for demo flows
+    } catch (emailError) {
+      console.error("Signup email error:", emailError);
     }
 
     return NextResponse.json({ ok: true, pending: true, message: "Account created. Pending approval.", verificationSent: true });
-  } catch {
-    return NextResponse.json({ ok: false, error: "Something went wrong." }, { status: 500 });
+  } catch (error) {
+    console.error("Signup error:", error);
+    return NextResponse.json({ ok: false, error: `Something went wrong: ${error instanceof Error ? error.message : "Unknown error"}` }, { status: 500 });
   }
 }
