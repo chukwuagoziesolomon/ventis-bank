@@ -43,11 +43,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: `Database error: ${dbError instanceof Error ? dbError.message : "Unknown error"}` }, { status: 500 });
     }
 
-    const verificationCode = createVerificationCode(userId);
+    const verificationCode = await createVerificationCode(userId);
     try {
       await sendVerificationEmail(email, name.trim(), verificationCode);
     } catch (emailError) {
       console.error("Signup email error:", emailError);
+      return NextResponse.json({ ok: false, error: "Failed to send verification email." }, { status: 500 });
     }
 
     return NextResponse.json({ ok: true, pending: true, message: "Account created. Pending approval.", verificationSent: true });

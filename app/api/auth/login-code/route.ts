@@ -18,11 +18,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "No account found with this email." }, { status: 404 });
     }
 
-    const code = createLoginCode(user.id);
+    const code = await createLoginCode(user.id);
     try {
       await sendVerificationEmail(email, user.name, code);
-    } catch {
-      // ignore outbox errors
+    } catch (emailError) {
+      console.error("Login code email error:", emailError);
+      return NextResponse.json({ ok: false, error: "Failed to send login code." }, { status: 500 });
     }
 
     return NextResponse.json({ ok: true, message: "If an account exists, a login code has been sent." });

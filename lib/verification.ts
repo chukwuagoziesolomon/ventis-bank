@@ -9,13 +9,13 @@ interface VerificationRecord {
   expiresAt: string;
 }
 
-export function createVerificationCode(userId: string): string {
+export async function createVerificationCode(userId: string): Promise<string> {
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   const now = new Date();
   const expiresAt = new Date(now.getTime() + 15 * 60 * 1000).toISOString();
   const id = `vc_${Math.random().toString(36).slice(2, 10)}`;
 
-  pool.query(
+  await pool.query(
     'INSERT INTO "VerificationCode" (id, "userId", code, "expiresAt", verified, "createdAt") VALUES ($1, $2, $3, $4, $5, $6)',
     [id, userId, code, expiresAt, false, now.toISOString()]
   );
@@ -36,13 +36,13 @@ export async function verifyCode(code: string): Promise<string | null> {
   return userId;
 }
 
-export function createLoginCode(userId: string): string {
+export async function createLoginCode(userId: string): Promise<string> {
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   const now = new Date();
   const expiresAt = new Date(now.getTime() + 10 * 60 * 1000).toISOString();
   const id = `lc_${Math.random().toString(36).slice(2, 10)}`;
 
-  pool.query(
+  await pool.query(
     'INSERT INTO "VerificationCode" (id, "userId", code, "expiresAt", verified, "createdAt") VALUES ($1, $2, $3, $4, $5, $6)',
     [id, userId, code, expiresAt, false, now.toISOString()]
   );
