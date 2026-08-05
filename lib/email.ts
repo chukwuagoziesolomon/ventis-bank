@@ -39,7 +39,8 @@ export async function sendEmail(message: Omit<EmailMessage, "sentAt">) {
     console.log("Email sent:", info.messageId);
     return { ...message, sentAt: new Date().toISOString() };
   } catch (error) {
-    console.error("Failed to send email via SMTP, falling back to outbox:", error?.message || error);
+    const errMsg = error && typeof error === "object" && "message" in error ? (error as any).message : String(error);
+    console.error("Failed to send email via SMTP, falling back to outbox:", errMsg);
     try {
       ensureOutbox();
       const emails: EmailMessage[] = JSON.parse(fs.readFileSync(OUTBOX_PATH, "utf-8") || "[]");
@@ -49,7 +50,8 @@ export async function sendEmail(message: Omit<EmailMessage, "sentAt">) {
       console.log(`Wrote email to outbox: ${OUTBOX_PATH}`);
       return record;
     } catch (fsErr) {
-      console.error("Failed to write email to outbox:", fsErr);
+      const fsErrMsg = fsErr && typeof fsErr === "object" && "message" in fsErr ? (fsErr as any).message : String(fsErr);
+      console.error("Failed to write email to outbox:", fsErrMsg);
       throw error;
     }
   }
