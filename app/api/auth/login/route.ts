@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { createLoginCode } from "@/lib/verification";
-import { sendVerificationEmail } from "@/lib/email";
+import { sendLoginCodeEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
 
     const code = await createLoginCode(user.id);
     try {
-      await sendVerificationEmail(email, user.name, code);
+      await sendLoginCodeEmail(email, user.name, code);
     } catch (emailError) {
       console.error("Login email error:", emailError);
       return NextResponse.json({ ok: false, error: "Failed to send login code." }, { status: 500 });

@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
@@ -9,6 +11,15 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS,
   },
 });
+
+const OUTBOX_PATH = path.resolve(process.cwd(), "data", "outbox.json");
+
+function ensureOutbox() {
+  if (!fs.existsSync(OUTBOX_PATH)) {
+    fs.mkdirSync(path.dirname(OUTBOX_PATH), { recursive: true });
+    fs.writeFileSync(OUTBOX_PATH, JSON.stringify([]));
+  }
+}
 
 export interface EmailMessage {
   to: string;
@@ -28,8 +39,19 @@ export async function sendEmail(message: Omit<EmailMessage, "sentAt">) {
     console.log("Email sent:", info.messageId);
     return { ...message, sentAt: new Date().toISOString() };
   } catch (error) {
-    console.error("Failed to send email:", error);
-    throw error;
+    console.error("Failed to send email via SMTP, falling back to outbox:", error?.message || error);
+    try {
+      ensureOutbox();
+      const emails: EmailMessage[] = JSON.parse(fs.readFileSync(OUTBOX_PATH, "utf-8") || "[]");
+      const record: EmailMessage = { ...message, sentAt: new Date().toISOString() };
+      emails.unshift(record);
+      fs.writeFileSync(OUTBOX_PATH, JSON.stringify(emails, null, 2));
+      console.log(`Wrote email to outbox: ${OUTBOX_PATH}`);
+      return record;
+    } catch (fsErr) {
+      console.error("Failed to write email to outbox:", fsErr);
+      throw error;
+    }
   }
 }
 
@@ -52,6 +74,29 @@ export function sendVerificationEmail(to: string, name: string, code: string) {
   return sendEmail({
     to,
     subject: "Confirm your MidwesternBank email address",
+    html,
+  });
+}
+
+export function sendLoginCodeEmail(to: string, name: string, code: string) {
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #18181b; background: #f8fafc; padding: 24px;">
+      <div style="max-width: 600px; margin: 0 auto; background: #0f172a; border-radius: 24px; overflow: hidden; box-shadow: 0 24px 80px rgba(15, 23, 42, 0.18);">
+        <div style="padding: 32px; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); color: #111827;">
+          <h1 style="margin: 0; font-size: 28px; letter-spacing: -0.03em;">Your MidwesternBank sign‑in code</h1>
+        </div>
+        <div style="padding: 32px; background: #0f172a; color: #e2e8f0;">
+          <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.7;">Hi ${name},</p>
+          <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.7;">Use the code below to sign in to your MidwesternBank account. This code is valid for 10 minutes.</p>
+          <div style="display: inline-block; padding: 16px 32px; border-radius: 14px; background: #111827; border: 1px solid #334155; color: #7dd3fc; font-size: 32px; font-weight: 700; letter-spacing: 8px; text-align: center;">${code}</div>
+          <p style="margin: 24px 0 0; font-size: 14px; line-height: 1.7; color: #94a3b8;">If you didn't request this code, ignore this message.</p>
+        </div>
+      </div>
+    </div>
+  `;
+  return sendEmail({
+    to,
+    subject: "Sign in to MidwesternBank — your code",
     html,
   });
 }

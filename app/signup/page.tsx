@@ -18,6 +18,9 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [pendingReview, setPendingReview] = useState(false);
+  const [verifyCode, setVerifyCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState("");
 
   function handleNext(e: React.FormEvent) {
     e.preventDefault();
@@ -201,20 +204,76 @@ export default function SignupPage() {
         <Modal open={pendingReview} onClose={() => setPendingReview(false)} title="Details under review">
           <div className="space-y-3">
             <p className="text-sm text-bone/60">
-              Thanks for signing up, {form.name.split(" ")[0]}! Your account details are currently being reviewed by our team.
+              Thanks for signing up, {form.name.split(" ")[0]}! We sent a 6‑digit verification code to {form.email}.
             </p>
             <p className="text-sm text-bone/40">
-              Once approved, an admin will set up your account with a starting balance and transaction history.
+              Enter the code below to verify your email now. You can also resend the code if you didn't receive it.
             </p>
-            <p className="text-sm text-bone/40">
-              This usually takes a few minutes. If you have any questions, contact support@midwesternbank.com.
-            </p>
-            <div className="pt-4">
+
+            <div>
+              <label className="block text-xs uppercase tracking-[0.15em] text-bone/40 mb-2">Verification code</label>
+              <input
+                value={verifyCode}
+                onChange={(e) => setVerifyCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
+                placeholder="123456"
+                className="w-full bg-ink-800 border border-white/10 rounded-xl px-4 py-3 text-bone text-sm focus:border-gold-400/50 outline-none"
+              />
+              {verifyError && <p className="text-sm text-coral mt-2">{verifyError}</p>}
+            </div>
+
+            <div className="pt-4 space-y-2">
               <button
-                onClick={() => router.push("/login")}
+                onClick={async () => {
+                  setVerifying(true);
+                  setVerifyError("");
+                  try {
+                    const res = await fetch("/api/auth/verify", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ code: verifyCode }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok || !data.ok) {
+                      setVerifyError(data.error ?? "Invalid or expired code.");
+                    } else {
+                      setPendingReview(false);
+                      router.push('/login');
+                    }
+                  } catch (err) {
+                    setVerifyError("Unable to verify code. Try again.");
+                  } finally {
+                    setVerifying(false);
+                  }
+                }}
+                disabled={verifying || verifyCode.length !== 6}
                 className="w-full bg-gold-400 hover:bg-gold-300 text-ink-950 font-semibold py-3 rounded-xl transition-colors"
               >
-                Go to login
+                {verifying ? "Verifying…" : "Verify code"}
+              </button>
+
+              <button
+                onClick={async () => {
+                  try {
+                    await fetch('/api/auth/verification/resend', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email: form.email }),
+                    });
+                    alert('Verification code resent if the account exists.');
+                  } catch {
+                    alert('Unable to resend code.');
+                  }
+                }}
+                className="w-full text-sm text-bone/40 hover:text-bone"
+              >
+                Resend code
+              </button>
+
+              <button
+                onClick={() => router.push('/login')}
+                className="w-full text-sm text-bone/40 hover:text-bone"
+              >
+                Back to login
               </button>
             </div>
           </div>
