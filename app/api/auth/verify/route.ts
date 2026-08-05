@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Verification code is required." }, { status: 400 });
     }
 
-    const userId = verifyCode(code);
+    const userId = await verifyCode(code);
     if (!userId) {
       return NextResponse.json({ ok: false, error: "Invalid or expired verification code." }, { status: 400 });
     }
