@@ -53,6 +53,17 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
+      // ensure server-side session cookie is created (some flows rely on POST /api/auth/session)
+      try {
+        await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: data.user?.id }),
+        });
+      } catch (sessErr) {
+        console.warn("Failed to create session after login verify:", sessErr);
+      }
+
       router.push("/dashboard");
     } catch {
       setError("Something went wrong.");
