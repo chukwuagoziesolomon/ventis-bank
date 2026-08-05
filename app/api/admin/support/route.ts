@@ -41,7 +41,7 @@ export async function POST(request: Request) {
 
     addSupportMessage(userId, { from: "admin", text: text.trim() });
     try {
-      sendSupportReplyEmail(user.email, user.name, text.trim());
+      await sendSupportReplyEmail(user.email, user.name, text.trim());
     } catch {
       // ignore outbox failures for demo support notifications
     }

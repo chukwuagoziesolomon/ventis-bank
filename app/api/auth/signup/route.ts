@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
     const verificationCode = createVerificationCode(userId);
     try {
-      sendVerificationEmail(email, name.trim(), verificationCode);
+      await sendVerificationEmail(email, name.trim(), verificationCode);
     } catch {
       // ignore outbox failures for demo flows
     }

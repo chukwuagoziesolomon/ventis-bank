@@ -1,7 +1,14 @@
-import fs from "fs";
-import path from "path";
+import nodemailer from "nodemailer";
 
-const OUTBOX_PATH = path.resolve(process.cwd(), "data", "outbox.json");
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT || "587", 10),
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 export interface EmailMessage {
   to: string;
@@ -10,29 +17,20 @@ export interface EmailMessage {
   sentAt: string;
 }
 
-function ensureOutbox() {
-  if (!fs.existsSync(OUTBOX_PATH)) {
-    fs.writeFileSync(OUTBOX_PATH, JSON.stringify([]));
+export async function sendEmail(message: Omit<EmailMessage, "sentAt">) {
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+      to: message.to,
+      subject: message.subject,
+      html: message.html,
+    });
+    console.log("Email sent:", info.messageId);
+    return { ...message, sentAt: new Date().toISOString() };
+  } catch (error) {
+    console.error("Failed to send email:", error);
+    throw error;
   }
-}
-
-export function sendEmail(message: Omit<EmailMessage, "sentAt">) {
-  ensureOutbox();
-  const emails: EmailMessage[] = JSON.parse(fs.readFileSync(OUTBOX_PATH, "utf-8") || "[]");
-  emails.unshift({
-    ...message,
-    sentAt: new Date().toISOString(),
-  });
-  fs.writeFileSync(OUTBOX_PATH, JSON.stringify(emails, null, 2));
-  return message;
-}
-
-function getAppUrl() {
-  return (
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.APP_URL ||
-    "http://localhost:3000"
-  );
 }
 
 export function sendVerificationEmail(to: string, name: string, code: string) {
@@ -46,7 +44,7 @@ export function sendVerificationEmail(to: string, name: string, code: string) {
           <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.7;">Hi ${name},</p>
           <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.7;">Thanks for signing up for MidwesternBank. Use the verification code below to confirm your email address and unlock your account experience.</p>
           <div style="display: inline-block; padding: 16px 32px; border-radius: 14px; background: #111827; border: 1px solid #334155; color: #fbbf24; font-size: 32px; font-weight: 700; letter-spacing: 8px; text-align: center;">${code}</div>
-          <p style="margin: 24px 0 0; font-size: 14px; line-height: 1.7; color: #94a3b8;">This code expires in 15 minutes. If you didn’t request this email, you can safely ignore it.</p>
+          <p style="margin: 24px 0 0; font-size: 14px; line-height: 1.7; color: #94a3b8;">This code expires in 15 minutes. If you didn't request this email, you can safely ignore it.</p>
         </div>
       </div>
     </div>
@@ -67,8 +65,8 @@ export function sendLockedAccountEmail(to: string, name: string) {
         </div>
         <div style="padding: 32px; background: #0f172a; color: #e2e8f0;">
           <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.7;">Hi ${name},</p>
-          <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.7;">We’ve temporarily locked your account for security reasons. This helps protect your funds while we review your activity.</p>
-          <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.7;">If you believe this was a mistake, please contact our support team at <strong>support@vantis.bank</strong> and we’ll help restore your access quickly.</p>
+          <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.7;">We've temporarily locked your account for security reasons. This helps protect your funds while we review your activity.</p>
+          <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.7;">If you believe this was a mistake, please contact our support team at <strong>support@midwesternbank.com</strong> and we'll help restore your access quickly.</p>
           <div style="padding: 18px 22px; border-radius: 16px; background: #111827; border: 1px solid #334155; color: #cbd5e1; font-size: 14px; line-height: 1.7;">Why this happened: your account has been marked locked by the MidwesternBank team. No action is required to keep your funds safe.</div>
         </div>
       </div>
@@ -84,7 +82,7 @@ export function sendLockedAccountEmail(to: string, name: string) {
 export function sendSupportReplyEmail(to: string, name: string, message: string) {
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #18181b; background: #f8fafc; padding: 24px;">
-      <div style="max-width: 600px; margin: 0 auto; background: #0f172a; border-radius: 24px; overflow: hidden; box-shadow: 0 24px 80px rgba(15, 23, 42, 0.18);">
+      <div style="max-width: 600px; margin: 0 auto; background: #111827; border-radius: 24px; overflow: hidden; box-shadow: 0 24px 80px rgba(15, 23, 42, 0.18);">
         <div style="padding: 32px; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); color: #111827;">
           <h1 style="margin: 0; font-size: 28px; letter-spacing: -0.03em;">New reply from MidwesternBank support</h1>
         </div>
@@ -102,9 +100,4 @@ export function sendSupportReplyEmail(to: string, name: string, message: string)
     subject: "MidwesternBank support replied to your message",
     html,
   });
-}
-
-export function getOutbox() {
-  ensureOutbox();
-  return JSON.parse(fs.readFileSync(OUTBOX_PATH, "utf-8"));
 }

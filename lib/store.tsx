@@ -69,6 +69,7 @@ interface VantisContextValue extends VantisState {
   fetchAllSupportConversations: () => Promise<Array<SupportConversation & { name: string; email: string }>>;
   sendAdminSupportReply: (userId: string, text: string) => Promise<{ ok: boolean; error?: string }>;
   refreshData: () => Promise<void>;
+  completeEmailVerification: (user: VantisUser) => Promise<{ ok: boolean; error?: string }>;
   totalBalance: number;
   myAccountForReceiving: Account;
 }
@@ -240,6 +241,39 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         setState((prev) => ({ ...prev, loading: false }));
         return { ok: false, error: `Failed to load dashboard data: ${err instanceof Error ? err.message : "Unknown error"}` };
       }
+    }
+    return { ok: true };
+  }, []);
+
+  const completeEmailVerification = useCallback(async (user: VantisUser) => {
+    setState((prev) => ({
+      ...prev,
+      isAuthenticated: true,
+      user,
+      accounts: [],
+      cards: [],
+      transactions: [],
+    }));
+
+    try {
+      const overviewRes = await fetch("/api/dashboard/overview", {
+        headers: { "x-user-id": user.id },
+      });
+      if (!overviewRes.ok) {
+        setState((prev) => ({ ...prev, loading: false }));
+        return { ok: false, error: `Failed to load dashboard data: ${overviewRes.status}` };
+      }
+      const overview = await overviewRes.json();
+      setState((prev) => ({
+        ...prev,
+        accounts: overview.accounts ?? [],
+        cards: overview.cards ?? [],
+        transactions: overview.recentTransactions ?? [],
+        loading: false,
+      }));
+    } catch (err) {
+      setState((prev) => ({ ...prev, loading: false }));
+      return { ok: false, error: `Failed to load dashboard data: ${err instanceof Error ? err.message : "Unknown error"}` };
     }
     return { ok: true };
   }, []);
@@ -650,6 +684,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     fetchAllSupportConversations,
     sendAdminSupportReply,
     refreshData,
+    completeEmailVerification,
     totalBalance,
     myAccountForReceiving,
   };

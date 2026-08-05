@@ -1,0 +1,23 @@
+[
+  {
+    "userId": "u_ny8z59m7",
+    "code": "538709",
+    "verified": false,
+    "createdAt": "2026-08-05T10:00:31.200Z",
+    "expiresAt": "2026-08-05T10:15:31.200Z"
+  },
+  {
+    "userId": "u_kdh0tpcv",
+    "code": "600826",
+    "verified": false,
+    "createdAt": "2026-08-05T10:54:01.125Z",
+    "expiresAt": "2026-08-05T11:09:01.125Z"
+  },
+  {
+    "userId": "u_ui7qwv4y",
+    "code": "726696",
+    "verified": true,
+    "createdAt": "2026-08-05T12:22:26.959Z",
+    "expiresAt": "2026-08-05T12:37:26.959Z"
+  }
+]

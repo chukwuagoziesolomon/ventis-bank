@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
     const code = createLoginCode(user.id);
     try {
-      sendVerificationEmail(email, user.name, code);
+      await sendVerificationEmail(email, user.name, code);
     } catch {
       // ignore outbox errors
     }

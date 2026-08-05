@@ -16,7 +16,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Invalid or expired verification code." }, { status: 400 });
     }
 
-    await pool.query('UPDATE "User" SET status = $1, "updatedAt" = $2 WHERE id = $3', ["approved", new Date().toISOString(), userId]);
+    const result = await pool.query('SELECT id, name, email FROM "User" WHERE id = $1', [userId]);
+    const user = result.rows[0];
+
+    if (!user) {
+      return NextResponse.json({ ok: false, error: "User not found." }, { status: 404 });
+    }
 
     return NextResponse.json({ ok: true, message: "Email verified successfully." });
   } catch {

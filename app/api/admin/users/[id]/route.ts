@@ -304,9 +304,9 @@ export async function PATCH(
 
     if (locked === true) {
       try {
-        sendLockedAccountEmail(user.email, user.name);
+        await sendLockedAccountEmail(user.email, user.name);
       } catch {
-        // continue even if email cannot be queued in outbox
+        // continue even if email cannot be sent
       }
     }
 

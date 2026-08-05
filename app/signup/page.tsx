@@ -194,7 +194,7 @@ export default function SignupPage() {
                 <Clock className="w-7 h-7 text-gold-300" />
               </motion.div>
               <p className="font-display text-2xl text-bone">Account under review</p>
-              <p className="text-sm text-bone/40 mt-2">We sent a verification code to {form.email}. Enter it on the verification page to confirm your email.</p>
+              <p className="text-sm text-bone/40 mt-2">We're reviewing your details, {form.name.split(" ")[0]}.</p>
             </motion.div>
           )}
         </motion.div>
@@ -204,21 +204,15 @@ export default function SignupPage() {
               Thanks for signing up, {form.name.split(" ")[0]}! Your account details are currently being reviewed by our team.
             </p>
             <p className="text-sm text-bone/40">
-              We also sent a verification code to your email address. Enter the code on the verification page to prepare your account for login once approval is complete.
+              Once approved, an admin will set up your account with a starting balance and transaction history.
             </p>
             <p className="text-sm text-bone/40">
-              This usually takes a few minutes. If you don't see the message, check your spam folder.
+              This usually takes a few minutes. If you have any questions, contact support@midwesternbank.com.
             </p>
-            <div className="pt-4 flex gap-3">
-              <button
-                onClick={() => router.push("/auth/verify")}
-                className="flex-1 bg-gold-400 hover:bg-gold-300 text-ink-950 font-semibold py-3 rounded-xl transition-colors"
-              >
-                Verify email
-              </button>
+            <div className="pt-4">
               <button
                 onClick={() => router.push("/login")}
-                className="flex-1 bg-white/5 hover:bg-white/10 text-bone font-semibold py-3 rounded-xl transition-colors border border-white/10"
+                className="w-full bg-gold-400 hover:bg-gold-300 text-ink-950 font-semibold py-3 rounded-xl transition-colors"
               >
                 Go to login
               </button>
