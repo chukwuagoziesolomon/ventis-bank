@@ -34,6 +34,7 @@ function splitOpeningBalance(amount: number) {
 function generateTransactions(userId: string, accountId: string, balance: number) {
   const now = new Date();
   const startDate = new Date(2025, 8, 1);
+  const endDate = new Date(2026, 7, 31);
   const transactions: Array<{
     id: string;
     userId: string;
@@ -55,7 +56,7 @@ function generateTransactions(userId: string, accountId: string, balance: number
       label: "Project materials from China",
       detail: "China Supplier",
       amount: -161000,
-      date: "2026-07-22T09:15:00.000Z",
+      date: "2026-08-05T09:15:00.000Z",
       status: "completed",
       accountId,
       direction: "debit",
@@ -67,7 +68,7 @@ function generateTransactions(userId: string, accountId: string, balance: number
       label: "Food",
       detail: "Local Restaurant",
       amount: -1000,
-      date: "2026-07-21T14:02:00.000Z",
+      date: "2026-08-04T14:02:00.000Z",
       status: "completed",
       accountId,
       direction: "debit",
@@ -79,7 +80,7 @@ function generateTransactions(userId: string, accountId: string, balance: number
       label: "Hotel payment",
       detail: "Grand Hotel",
       amount: -7000,
-      date: "2026-07-20T11:22:00.000Z",
+      date: "2026-08-03T11:22:00.000Z",
       status: "completed",
       accountId,
       direction: "debit",
@@ -91,7 +92,7 @@ function generateTransactions(userId: string, accountId: string, balance: number
       label: "Flight ticket",
       detail: "Airline",
       amount: -750,
-      date: "2026-07-20T16:45:00.000Z",
+      date: "2026-08-02T16:45:00.000Z",
       status: "completed",
       accountId,
       direction: "debit",
@@ -197,8 +198,8 @@ function generateTransactions(userId: string, accountId: string, balance: number
   let civilDebitIndex = 0;
   let civilCreditIndex = 0;
 
-  for (let day = totalDays; day >= 0; day--) {
-    const date = new Date(now.getTime() - day * 24 * 60 * 60 * 1000);
+  for (let day = Math.floor((now.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24)); day >= 0; day--) {
+    const date = new Date(endDate.getTime() - day * 24 * 60 * 60 * 1000);
     const dateStr = date.toISOString();
 
     const hasPayroll = day % 14 === 0;
