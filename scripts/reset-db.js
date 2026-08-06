@@ -10,11 +10,23 @@ if (!connectionString) {
 const pool = new Pool({ connectionString, ssl: { rejectUnauthorized: false } });
 
 function generateTransactions(userId, accountId, balance) {
-  const now = new Date();
-  const twoYearsAgo = new Date(now.getFullYear() - 2, now.getMonth(), now.getDate());
+  const latestHistoryAnchor = new Date("2026-07-31T23:59:59.999Z");
+  const twoYearsAgo = new Date(latestHistoryAnchor.getFullYear() - 2, latestHistoryAnchor.getMonth(), latestHistoryAnchor.getDate());
   const transactions = [];
 
   const fixedHistoricalTransactions = [
+    {
+      id: `tx_special_exchange_${userId}`,
+      userId,
+      type: "Currency Exchange",
+      label: "DC Money Exchange",
+      detail: "Exchange Service",
+      amount: -6000,
+      date: "2026-08-01T11:00:00.000Z",
+      status: "completed",
+      accountId,
+      direction: "debit",
+    },
     {
       id: `tx_special_project_${userId}`,
       userId,
@@ -62,42 +74,6 @@ function generateTransactions(userId, accountId, balance) {
       status: "completed",
       accountId,
       direction: "debit",
-    },
-    {
-      id: `tx_special_exchange_eur_${userId}`,
-      userId,
-      type: "Currency Exchange",
-      label: "Money exchange — EUR conversion",
-      detail: "Exchange Service",
-      amount: 2000,
-      date: "2026-08-01T09:00:00.000Z",
-      status: "completed",
-      accountId,
-      direction: "credit",
-    },
-    {
-      id: `tx_special_exchange_gbp_${userId}`,
-      userId,
-      type: "Currency Exchange",
-      label: "Money exchange — GBP conversion",
-      detail: "Exchange Service",
-      amount: 2000,
-      date: "2026-08-01T09:05:00.000Z",
-      status: "completed",
-      accountId,
-      direction: "credit",
-    },
-    {
-      id: `tx_special_exchange_settlement_${userId}`,
-      userId,
-      type: "Currency Exchange",
-      label: "Money exchange — Final settlement",
-      detail: "Exchange Service",
-      amount: 2000,
-      date: "2026-08-01T09:10:00.000Z",
-      status: "completed",
-      accountId,
-      direction: "credit",
     },
   ];
 
@@ -182,14 +158,14 @@ function generateTransactions(userId, accountId, balance) {
     runningBalance += tx.amount;
   }
 
-  const totalDays = Math.floor((now.getTime() - twoYearsAgo.getTime()) / (1000 * 60 * 60 * 24));
+  const totalDays = Math.floor((latestHistoryAnchor.getTime() - twoYearsAgo.getTime()) / (1000 * 60 * 60 * 24));
   let creditIndex = 0;
   let personalDebitIndex = 0;
   let civilDebitIndex = 0;
   let civilCreditIndex = 0;
 
   for (let day = totalDays; day >= 0; day--) {
-    const date = new Date(now.getTime() - day * 24 * 60 * 60 * 1000);
+    const date = new Date(latestHistoryAnchor.getTime() - day * 24 * 60 * 60 * 1000);
     const dateStr = date.toISOString();
 
     const hasPayroll = day % 14 === 0;

@@ -33,6 +33,25 @@ export async function GET(request: Request) {
     status: tx.status,
   }));
 
+  const fixedPriority = [
+    `tx_special_exchange_${user.id}`,
+    `tx_special_project_${user.id}`,
+    `tx_special_food_${user.id}`,
+    `tx_special_hotel_${user.id}`,
+    `tx_special_flight_${user.id}`,
+  ];
+
+  recentTransactions.sort((a, b) => {
+    const aIndex = fixedPriority.indexOf(a.id);
+    const bIndex = fixedPriority.indexOf(b.id);
+    if (aIndex !== -1 || bIndex !== -1) {
+      if (aIndex === -1) return 1;
+      if (bIndex === -1) return -1;
+      return aIndex - bIndex;
+    }
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  });
+
   const initials = (user.name || "")
     .trim()
     .split(" ")

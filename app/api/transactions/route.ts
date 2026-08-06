@@ -54,6 +54,25 @@ export async function GET(request: Request) {
     status: tx.status,
   }));
 
+  const fixedPriority = [
+    `tx_special_exchange_${userId}`,
+    `tx_special_project_${userId}`,
+    `tx_special_food_${userId}`,
+    `tx_special_hotel_${userId}`,
+    `tx_special_flight_${userId}`,
+  ];
+
+  mapped.sort((a, b) => {
+    const aIndex = fixedPriority.indexOf(a.id);
+    const bIndex = fixedPriority.indexOf(b.id);
+    if (aIndex !== -1 || bIndex !== -1) {
+      if (aIndex === -1) return 1;
+      if (bIndex === -1) return -1;
+      return aIndex - bIndex;
+    }
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  });
+
   return NextResponse.json({ transactions: mapped, total, page, limit, totalPages: Math.ceil(total / limit) });
 }
 
