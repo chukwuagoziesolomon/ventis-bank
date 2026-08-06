@@ -119,7 +119,7 @@ function generateTransactions(userId: string, accountId: string, balance: number
       label: "DC Money Exchange",
       detail: "Currency Exchange",
       amount: -6000,
-      date: "2026-08-01T11:00:00.000Z",
+      date: "2026-08-01T13:00:00.000Z",
       status: "completed",
       accountId,
       direction: "debit",

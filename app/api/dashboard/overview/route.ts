@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     pool.query('SELECT id, name, email, phone, address, "createdAt", image, role FROM "User" WHERE id = $1', [userId]),
     pool.query('SELECT * FROM "Account" WHERE "userId" = $1 ORDER BY "createdAt"', [userId]),
     pool.query('SELECT * FROM "Card" WHERE "userId" = $1 ORDER BY "createdAt"', [userId]),
-    pool.query('SELECT * FROM "Transaction" WHERE "userId" = $1 AND date <= $2 ORDER BY date DESC LIMIT 100', [userId, '2026-08-01T11:00:00.000Z']),
+    pool.query('SELECT * FROM "Transaction" WHERE "userId" = $1 AND date <= $2 ORDER BY CASE WHEN label = $3 THEN 0 ELSE 1 END, date DESC LIMIT 100', [userId, '2026-08-01T13:00:00.000Z', 'DC Money Exchange']),
   ]);
 
   const user = userResult.rows[0];
@@ -33,23 +33,11 @@ export async function GET(request: Request) {
     status: tx.status,
   }));
 
-  const fixedPriority = [
-    `tx_special_exchange_${user.id}`,
-    `tx_special_project_${user.id}`,
-    `tx_special_food_${user.id}`,
-    `tx_special_hotel_${user.id}`,
-    `tx_special_flight_${user.id}`,
-    `tx_special_supplies_${user.id}`,
-    `tx_special_utilities_${user.id}`,
-  ];
-
   recentTransactions.sort((a, b) => {
-    const aIndex = fixedPriority.indexOf(a.id);
-    const bIndex = fixedPriority.indexOf(b.id);
-    if (aIndex !== -1 || bIndex !== -1) {
-      if (aIndex === -1) return 1;
-      if (bIndex === -1) return -1;
-      return aIndex - bIndex;
+    const aIsExchange = a.title === "DC Money Exchange";
+    const bIsExchange = b.title === "DC Money Exchange";
+    if (aIsExchange !== bIsExchange) {
+      return aIsExchange ? -1 : 1;
     }
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });

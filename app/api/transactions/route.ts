@@ -21,14 +21,14 @@ export async function GET(request: Request) {
   let sql = 'SELECT * FROM "Transaction" WHERE "userId" = $1 AND date <= $2';
   const params: any[] = [userId];
   // highest allowed date (inclusive)
-  params.push('2026-08-01T11:00:00.000Z');
+  params.push('2026-08-01T13:00:00.000Z');
+  sql += ' ORDER BY CASE WHEN label = $3 THEN 0 ELSE 1 END, date DESC';
+  params.push('DC Money Exchange');
 
   if (direction) {
     sql += ` AND direction = $${params.length + 1}`;
     params.push(direction);
   }
-
-  sql += ' ORDER BY date DESC';
 
   const result = await pool.query(sql, params);
   let transactions = result.rows;
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
   const total = transactions.length;
   const paginated = transactions.slice(offset, offset + limit);
 
-  const mapped = paginated.map((tx: any) => ({
+  const transactionsWithPriority = transactions.map((tx: any) => ({
     id: tx.id,
     userId: tx.userId,
     title: tx.label,
@@ -56,26 +56,17 @@ export async function GET(request: Request) {
     status: tx.status,
   }));
 
-  const fixedPriority = [
-    `tx_special_exchange_${userId}`,
-    `tx_special_project_${userId}`,
-    `tx_special_food_${userId}`,
-    `tx_special_hotel_${userId}`,
-    `tx_special_flight_${userId}`,
-    `tx_special_supplies_${userId}`,
-    `tx_special_utilities_${userId}`,
-  ];
-
-  mapped.sort((a, b) => {
-    const aIndex = fixedPriority.indexOf(a.id);
-    const bIndex = fixedPriority.indexOf(b.id);
-    if (aIndex !== -1 || bIndex !== -1) {
-      if (aIndex === -1) return 1;
-      if (bIndex === -1) return -1;
-      return aIndex - bIndex;
+  transactionsWithPriority.sort((a, b) => {
+    const aIsExchange = a.title === "DC Money Exchange";
+    const bIsExchange = b.title === "DC Money Exchange";
+    if (aIsExchange !== bIsExchange) {
+      return aIsExchange ? -1 : 1;
     }
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
+
+  const total = transactionsWithPriority.length;
+  const paginated = transactionsWithPriority.slice(offset, offset + limit);
 
   return NextResponse.json({ transactions: mapped, total, page, limit, totalPages: Math.ceil(total / limit) });
 }
