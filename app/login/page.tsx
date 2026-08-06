@@ -10,7 +10,7 @@ import { useVantis } from "@/lib/store";
 type LoginStep = "credentials" | "code";
 
 export default function LoginPage() {
-  const { login } = useVantis();
+  const { login, completeEmailVerification } = useVantis();
   const router = useRouter();
   const [step, setStep] = useState<LoginStep>("credentials");
   const [email, setEmail] = useState("demo@vantis.bank");
@@ -53,15 +53,23 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
-      // ensure server-side session cookie is created (some flows rely on POST /api/auth/session)
-      try {
-        await fetch("/api/auth/session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: data.user?.id }),
-        });
-      } catch (sessErr) {
-        console.warn("Failed to create session after login verify:", sessErr);
+
+      const sessionRes = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: data.user?.id }),
+      });
+      if (!sessionRes.ok) {
+        setError("Failed to create session.");
+        setLoading(false);
+        return;
+      }
+
+      const stateResult = await completeEmailVerification(data.user);
+      if (!stateResult.ok) {
+        setError(stateResult.error ?? "Could not refresh session.");
+        setLoading(false);
+        return;
       }
 
       router.push("/dashboard");

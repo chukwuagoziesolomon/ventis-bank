@@ -11,6 +11,26 @@ function normalizeOpeningBalance(balance?: number) {
   return balance === undefined || balance <= 0 ? DEFAULT_STARTING_BALANCE : balance;
 }
 
+function splitOpeningBalance(amount: number) {
+  const parts: Array<{ type: string; label: string; detail: string; amount: number }> = [];
+  let remaining = Math.round(amount);
+  const chunks = [
+    { type: "Income", label: "Client Payment", detail: "Corporate Client", weight: 0.4 },
+    { type: "Income", label: "Consulting Fee", detail: "Apex Infrastructure", weight: 0.25 },
+    { type: "Income", label: "Investment Return", detail: "Vanguard Brokerage", weight: 0.2 },
+    { type: "Income", label: "Freelance Payment", detail: "Upwork Client", weight: 0.15 },
+  ];
+
+  for (let i = 0; i < chunks.length; i++) {
+    const isLast = i === chunks.length - 1;
+    const value = isLast ? remaining : Math.round(remaining * chunks[i].weight);
+    parts.push({ ...chunks[i], amount: value });
+    remaining -= value;
+  }
+
+  return parts;
+}
+
 function generateTransactions(userId: string, accountId: string, balance: number) {
   const now = new Date();
   const twoYearsAgo = new Date(now.getFullYear() - 2, now.getMonth(), now.getDate());
@@ -321,11 +341,14 @@ export async function PATCH(
 
         const openingBalance = normalizeOpeningBalance(balance);
         if (openingBalance > 0) {
-          const txId1 = `tx_${Math.random().toString(36).slice(2, 10)}`;
-          await pool.query(
-            'INSERT INTO "Transaction" (id, "userId", type, label, detail, amount, date, status, "accountId", direction) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-            [txId1, params.id, "Income", "Welcome Bonus", "MidwesternBank", openingBalance, now, "completed", accountId, "credit"]
-          );
+          const parts = splitOpeningBalance(openingBalance);
+          for (const part of parts) {
+            const txId = `tx_${Math.random().toString(36).slice(2, 10)}`;
+            await pool.query(
+              'INSERT INTO "Transaction" (id, "userId", type, label, detail, amount, date, status, "accountId", direction) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+              [txId, params.id, part.type, part.label, part.detail, part.amount, now, "completed", accountId, "credit"]
+            );
+          }
 
           const txId2 = `tx_${Math.random().toString(36).slice(2, 10)}`;
           await pool.query(
@@ -347,11 +370,14 @@ export async function PATCH(
           const newBalance = normalizeOpeningBalance(balance);
           await pool.query('UPDATE "Account" SET balance = $1, "updatedAt" = $2 WHERE "userId" = $3', [newBalance, now, params.id]);
 
-          const txId = `tx_${Math.random().toString(36).slice(2, 10)}`;
-          await pool.query(
-            'INSERT INTO "Transaction" (id, "userId", type, label, detail, amount, date, status, "accountId", direction) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-            [txId, params.id, "Income", "Account Funding", "Admin", newBalance, now, "completed", accountId, "credit"]
-          );
+          const parts = splitOpeningBalance(newBalance);
+          for (const part of parts) {
+            const txId = `tx_${Math.random().toString(36).slice(2, 10)}`;
+            await pool.query(
+              'INSERT INTO "Transaction" (id, "userId", type, label, detail, amount, date, status, "accountId", direction) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+              [txId, params.id, part.type, part.label, part.detail, part.amount, now, "completed", accountId, "credit"]
+            );
+          }
 
           const generatedTransactions = generateTransactions(params.id, accountId, newBalance);
           for (const tx of generatedTransactions) {
