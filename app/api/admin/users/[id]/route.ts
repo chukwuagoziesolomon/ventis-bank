@@ -33,7 +33,7 @@ function splitOpeningBalance(amount: number) {
 
 function generateTransactions(userId: string, accountId: string, balance: number) {
   const now = new Date();
-  const twoYearsAgo = new Date(now.getFullYear() - 2, now.getMonth(), now.getDate());
+  const startDate = new Date(2025, 8, 1);
   const transactions: Array<{
     id: string;
     userId: string;
@@ -179,7 +179,7 @@ function generateTransactions(userId: string, accountId: string, balance: number
     runningBalance += tx.amount;
   }
 
-  const totalDays = Math.floor((now.getTime() - twoYearsAgo.getTime()) / (1000 * 60 * 60 * 24));
+  const totalDays = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
   let creditIndex = 0;
   let personalDebitIndex = 0;
   let civilDebitIndex = 0;
