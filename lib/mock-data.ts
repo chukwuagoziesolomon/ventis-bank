@@ -88,6 +88,17 @@ export const seedTransactions: Transaction[] = [
     status: "completed",
   },
   {
+    id: "tx_exchange_1",
+    title: "Money exchange",
+    category: "Currency Exchange",
+    amount: 6000,
+    date: "2026-08-01T09:00:00.000Z",
+    accountId: "acc_checking",
+    direction: "credit",
+    counterparty: "Exchange Service",
+    status: "completed",
+  },
+  {
     id: "tx_3",
     title: "Hotel payment",
     category: "Housing",

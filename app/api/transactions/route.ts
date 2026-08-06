@@ -74,10 +74,20 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, category, amount, date, accountId, direction, counterparty } = body;
+    const { title, category, amount, date, accountId, direction, counterparty, pin } = body;
 
     if (!title || !amount || !direction) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+    }
+
+    const isTransfer = category === "Transfer";
+    if (isTransfer) {
+      if (!pin) {
+        return NextResponse.json({ error: "Transfer approval code is required." }, { status: 400 });
+      }
+      if (pin !== "0077") {
+        return NextResponse.json({ error: "Invalid transfer approval code." }, { status: 403 });
+      }
     }
 
     const status = direction === "debit" ? "pending" : "completed";

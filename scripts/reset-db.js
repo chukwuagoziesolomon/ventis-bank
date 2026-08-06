@@ -88,6 +88,7 @@ async function reset() {
     const txs = [
       ['tx_1', 'u_demo', 'Equipment', 'Project materials from China', 'China Supplier', -161000, '2026-07-22T09:15:00.000Z', 'completed', 'acc_checking', 'debit'],
       ['tx_2', 'u_demo', 'Food & Drink', 'Food', 'Local Restaurant', -1000, '2026-07-21T14:02:00.000Z', 'completed', 'acc_checking', 'debit'],
+      ['tx_exchange_1', 'u_demo', 'Currency Exchange', 'Money exchange', 'Exchange Service', 6000, '2026-08-01T09:00:00.000Z', 'completed', 'acc_checking', 'credit'],
       ['tx_11', 'u_demo', 'Transfer', 'To Femi Balogun', 'Femi Balogun', -300, '2026-07-10T17:47:00.000Z', 'pending', 'acc_checking', 'debit'],
     ];
 

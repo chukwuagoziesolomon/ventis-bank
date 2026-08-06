@@ -23,6 +23,7 @@ export default function SendMoneyPage() {
     bankName: "",
     swiftCode: "",
     routingNumber: "",
+    pin: "",
   });
 
   const isLocked = user?.locked === true;
@@ -56,6 +57,7 @@ export default function SendMoneyPage() {
       amount: parseFloat(form.amount),
       note: form.note,
       fromAccountId: form.fromAccountId,
+      pin: form.pin,
     });
     if (!result.ok) {
       setError(result.error ?? "Transfer failed.");
@@ -266,11 +268,25 @@ export default function SendMoneyPage() {
                 {form.note && <Row label="Note" value={form.note} />}
               </div>
 
+              <div>
+                <label className="block text-xs uppercase tracking-[0.15em] text-bone/40 mb-2">
+                  Approval code
+                </label>
+                <input
+                  value={form.pin}
+                  onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/[^0-9]/g, "").slice(0, 4) })}
+                  placeholder="0077"
+                  className="w-full bg-ink-700/60 border border-white/10 rounded-xl px-4 py-3 text-bone text-sm placeholder:text-bone/25 focus:border-gold-400/50 outline-none font-mono"
+                />
+                <p className="text-xs text-bone/40 mt-2">Enter the transfer approval PIN to complete this transfer. Use <span className="text-gold-300">0077</span>.</p>
+              </div>
+
               {error && <p className="text-sm text-coral">{error}</p>}
 
               <button
                 onClick={handleConfirm}
-                className="w-full inline-flex items-center justify-center gap-2 bg-gold-400 hover:bg-gold-300 text-ink-950 font-semibold py-3.5 rounded-xl transition-colors"
+                disabled={form.pin.length !== 4}
+                className="w-full inline-flex items-center justify-center gap-2 bg-gold-400 hover:bg-gold-300 text-ink-950 font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-60"
               >
                 Confirm & send
               </button>
@@ -323,7 +339,7 @@ export default function SendMoneyPage() {
               </div>
               <button
                 onClick={() => {
-                  setForm({ recipient: "", accountNumber: "", amount: "", note: "", fromAccountId: accounts[0]?.id ?? "", transferType: "local", bankName: "", swiftCode: "", routingNumber: "" });
+                  setForm({ recipient: "", accountNumber: "", amount: "", note: "", fromAccountId: accounts[0]?.id ?? "", transferType: "local", bankName: "", swiftCode: "", routingNumber: "", pin: "" });
                   setStep("form");
                 }}
                 className="mt-2 text-sm text-gold-300 hover:text-gold-200"

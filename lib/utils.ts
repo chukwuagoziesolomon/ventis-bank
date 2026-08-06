@@ -6,9 +6,12 @@ export function formatCurrency(amount: number, currency = "USD") {
   }).format(amount);
 }
 
+const NETHERLANDS_TIMEZONE = "Europe/Amsterdam";
+
 export function formatDate(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleDateString("en-US", {
+  return d.toLocaleDateString("en-GB", {
+    timeZone: NETHERLANDS_TIMEZONE,
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -17,10 +20,15 @@ export function formatDate(iso: string) {
 
 export function formatDateTime(iso: string) {
   const d = new Date(iso);
-  return `${d.toLocaleDateString("en-US", {
+  return `${d.toLocaleDateString("en-GB", {
+    timeZone: NETHERLANDS_TIMEZONE,
     month: "short",
     day: "numeric",
-  })} · ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`;
+  })} · ${d.toLocaleTimeString("en-GB", {
+    timeZone: NETHERLANDS_TIMEZONE,
+    hour: "numeric",
+    minute: "2-digit",
+  })}`;
 }
 
 export function generateId(prefix = "id") {

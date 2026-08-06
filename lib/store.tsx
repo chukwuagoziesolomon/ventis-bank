@@ -33,6 +33,7 @@ interface SendMoneyInput {
   amount: number;
   note?: string;
   fromAccountId: string;
+  pin: string;
 }
 
 interface CreateCardInput {
@@ -347,7 +348,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           "Content-Type": "application/json",
           "x-user-id": state.user.id,
         },
-        body: JSON.stringify({ title: `To ${recipient}`, category: "Transfer", amount: -amount, accountId: fromAccountId, direction: "debit", counterparty: `${recipient} · ${accountNumber}` }),
+        body: JSON.stringify({ title: `To ${recipient}`, category: "Transfer", amount: -amount, accountId: fromAccountId, direction: "debit", counterparty: `${recipient} · ${accountNumber}`, pin }),
       });
       const data = await res.json();
       if (!res.ok) {
