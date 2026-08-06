@@ -96,6 +96,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (!state.user?.id) return;
     try {
       const res = await fetch("/api/dashboard/overview", {
+        cache: "no-store",
         headers: { "x-user-id": state.user.id },
       });
       if (!res.ok) return;
@@ -223,6 +224,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (data.user?.id) {
       try {
         const overviewRes = await fetch("/api/dashboard/overview", {
+          cache: "no-store",
           headers: { "x-user-id": data.user.id },
         });
         if (!overviewRes.ok) {
@@ -258,6 +260,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const overviewRes = await fetch("/api/dashboard/overview", {
+        cache: "no-store",
         headers: { "x-user-id": user.id },
       });
       if (!overviewRes.ok) {

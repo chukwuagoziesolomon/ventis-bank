@@ -22,8 +22,6 @@ export async function GET(request: Request) {
   const params: any[] = [userId];
   // highest allowed date (inclusive)
   params.push('2026-08-01T13:00:00.000Z');
-  sql += ' ORDER BY CASE WHEN label = $3 THEN 0 ELSE 1 END, date DESC';
-  params.push('DC Money Exchange');
 
   if (direction) {
     sql += ` AND direction = $${params.length + 1}`;
@@ -39,9 +37,6 @@ export async function GET(request: Request) {
       (tx: any) => tx.label.toLowerCase().includes(lower) || tx.type.toLowerCase().includes(lower)
     );
   }
-
-  const total = transactions.length;
-  const paginated = transactions.slice(offset, offset + limit);
 
   const transactionsWithPriority = transactions.map((tx: any) => ({
     id: tx.id,
@@ -62,13 +57,21 @@ export async function GET(request: Request) {
     if (aIsExchange !== bIsExchange) {
       return aIsExchange ? -1 : 1;
     }
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
+
+    const aTime = new Date(a.date).getTime();
+    const bTime = new Date(b.date).getTime();
+
+    if (Number.isNaN(aTime) || Number.isNaN(bTime)) {
+      return 0;
+    }
+
+    return bTime - aTime;
   });
 
   const total = transactionsWithPriority.length;
   const paginated = transactionsWithPriority.slice(offset, offset + limit);
 
-  return NextResponse.json({ transactions: mapped, total, page, limit, totalPages: Math.ceil(total / limit) });
+  return NextResponse.json({ transactions: paginated, total, page, limit, totalPages: Math.ceil(total / limit) });
 }
 
 export async function POST(request: Request) {

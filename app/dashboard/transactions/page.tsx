@@ -30,6 +30,7 @@ export default function TransactionsPage() {
     if (query.trim()) params.set("q", query.trim());
 
     fetch(`/api/transactions?${params.toString()}`, {
+      cache: "no-store",
       headers: { "x-user-id": user.id },
     })
       .then((res) => res.json())

@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     pool.query('SELECT id, name, email, phone, address, "createdAt", image, role FROM "User" WHERE id = $1', [userId]),
     pool.query('SELECT * FROM "Account" WHERE "userId" = $1 ORDER BY "createdAt"', [userId]),
     pool.query('SELECT * FROM "Card" WHERE "userId" = $1 ORDER BY "createdAt"', [userId]),
-    pool.query('SELECT * FROM "Transaction" WHERE "userId" = $1 AND date <= $2 ORDER BY CASE WHEN label = $3 THEN 0 ELSE 1 END, date DESC LIMIT 100', [userId, '2026-08-01T13:00:00.000Z', 'DC Money Exchange']),
+    pool.query('SELECT * FROM "Transaction" WHERE "userId" = $1 AND date <= $2 LIMIT 100', [userId, '2026-08-01T13:00:00.000Z']),
   ]);
 
   const user = userResult.rows[0];
@@ -39,7 +39,15 @@ export async function GET(request: Request) {
     if (aIsExchange !== bIsExchange) {
       return aIsExchange ? -1 : 1;
     }
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
+
+    const aTime = new Date(a.date).getTime();
+    const bTime = new Date(b.date).getTime();
+
+    if (Number.isNaN(aTime) || Number.isNaN(bTime)) {
+      return 0;
+    }
+
+    return bTime - aTime;
   });
 
   const initials = (user.name || "")
