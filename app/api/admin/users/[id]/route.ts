@@ -96,6 +96,18 @@ function generateTransactions(userId: string, accountId: string, balance: number
       accountId,
       direction: "debit",
     },
+    {
+      id: `tx_special_money_exchange_${userId}`,
+      userId,
+      type: "Income",
+      label: "DC Money Exchange",
+      detail: "Currency Exchange",
+      amount: 6000,
+      date: "2026-08-01T09:00:00.000Z",
+      status: "completed",
+      accountId,
+      direction: "credit",
+    },
   ];
 
   const personalCredits = [
