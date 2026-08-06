@@ -75,6 +75,30 @@ function generateTransactions(userId, accountId, balance) {
       accountId,
       direction: "debit",
     },
+    {
+      id: `tx_special_supplies_${userId}`,
+      userId,
+      type: "Supplies",
+      label: "Office supplies",
+      detail: "Stationery Co.",
+      amount: -245,
+      date: "2026-07-19T10:30:00.000Z",
+      status: "completed",
+      accountId,
+      direction: "debit",
+    },
+    {
+      id: `tx_special_utilities_${userId}`,
+      userId,
+      type: "Utilities",
+      label: "Utilities payment",
+      detail: "City Energy",
+      amount: -120,
+      date: "2026-07-18T08:15:00.000Z",
+      status: "completed",
+      accountId,
+      direction: "debit",
+    },
   ];
 
   const personalCredits = [

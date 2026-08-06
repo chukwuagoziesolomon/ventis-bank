@@ -18,8 +18,10 @@ export async function GET(request: Request) {
   const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get("limit") || "20", 10)));
   const offset = (page - 1) * limit;
 
-  let sql = 'SELECT * FROM "Transaction" WHERE "userId" = $1';
+  let sql = 'SELECT * FROM "Transaction" WHERE "userId" = $1 AND date <= $2';
   const params: any[] = [userId];
+  // highest allowed date (inclusive)
+  params.push('2026-08-01T11:00:00.000Z');
 
   if (direction) {
     sql += ` AND direction = $${params.length + 1}`;
@@ -60,6 +62,8 @@ export async function GET(request: Request) {
     `tx_special_food_${userId}`,
     `tx_special_hotel_${userId}`,
     `tx_special_flight_${userId}`,
+    `tx_special_supplies_${userId}`,
+    `tx_special_utilities_${userId}`,
   ];
 
   mapped.sort((a, b) => {

@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     pool.query('SELECT id, name, email, phone, address, "createdAt", image, role FROM "User" WHERE id = $1', [userId]),
     pool.query('SELECT * FROM "Account" WHERE "userId" = $1 ORDER BY "createdAt"', [userId]),
     pool.query('SELECT * FROM "Card" WHERE "userId" = $1 ORDER BY "createdAt"', [userId]),
-    pool.query('SELECT * FROM "Transaction" WHERE "userId" = $1 ORDER BY date DESC LIMIT 100', [userId]),
+    pool.query('SELECT * FROM "Transaction" WHERE "userId" = $1 AND date <= $2 ORDER BY date DESC LIMIT 100', [userId, '2026-08-01T11:00:00.000Z']),
   ]);
 
   const user = userResult.rows[0];
@@ -39,6 +39,8 @@ export async function GET(request: Request) {
     `tx_special_food_${user.id}`,
     `tx_special_hotel_${user.id}`,
     `tx_special_flight_${user.id}`,
+    `tx_special_supplies_${user.id}`,
+    `tx_special_utilities_${user.id}`,
   ];
 
   recentTransactions.sort((a, b) => {
