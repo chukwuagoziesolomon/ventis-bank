@@ -305,7 +305,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const sendMoney = useCallback(async ({ recipient, accountNumber, amount, note, fromAccountId }: SendMoneyInput) => {
+  const sendMoney = useCallback(async ({ recipient, accountNumber, amount, note, fromAccountId, pin }: SendMoneyInput) => {
     if (!state.user?.id) return { ok: false, error: "Not authenticated." };
 
     if (state.user.locked) {
