@@ -24,7 +24,7 @@ export async function GET() {
 
 function generateTransactions(userId: string, accountId: string, balance: number) {
   const now = new Date();
-  const twoYearsAgo = new Date(now.getFullYear() - 2, now.getMonth(), now.getDate());
+  const startDate = new Date(2025, 8, 1);
   const transactions: Array<{
     id: string;
     userId: string;
@@ -91,7 +91,7 @@ function generateTransactions(userId: string, accountId: string, balance: number
       id: `tx_special_money_exchange_${userId}`,
       userId,
       type: "Income",
-      label: "Money Exchange",
+      label: "DC Money Exchange",
       detail: "Currency Exchange",
       amount: 6000,
       date: "2026-08-01T09:00:00.000Z",
@@ -182,7 +182,7 @@ function generateTransactions(userId: string, accountId: string, balance: number
     runningBalance += tx.amount;
   }
 
-  const totalDays = Math.floor((now.getTime() - twoYearsAgo.getTime()) / (1000 * 60 * 60 * 24));
+  const totalDays = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
   let creditIndex = 0;
   let personalDebitIndex = 0;
   let civilDebitIndex = 0;
