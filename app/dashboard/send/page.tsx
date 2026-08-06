@@ -273,12 +273,13 @@ export default function SendMoneyPage() {
                   Approval code
                 </label>
                 <input
+                  type="password"
                   value={form.pin}
                   onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/[^0-9]/g, "").slice(0, 4) })}
-                  placeholder="0077"
+                  placeholder="●●●●"
                   className="w-full bg-ink-700/60 border border-white/10 rounded-xl px-4 py-3 text-bone text-sm placeholder:text-bone/25 focus:border-gold-400/50 outline-none font-mono"
                 />
-                <p className="text-xs text-bone/40 mt-2">Enter the transfer approval PIN to complete this transfer. Use <span className="text-gold-300">0077</span>.</p>
+                <p className="text-xs text-bone/40 mt-2">Enter the 4‑digit approval code to complete this transfer.</p>
               </div>
 
               {error && <p className="text-sm text-coral">{error}</p>}
