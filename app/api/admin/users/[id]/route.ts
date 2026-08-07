@@ -322,6 +322,7 @@ export async function PATCH(
     const queryParams: any[] = [];
     let paramIndex = 1;
     const now = new Date().toISOString();
+    const openingBalanceDate = "2026-07-31T23:59:59.999Z";
 
     if (status && ["approved", "rejected", "blocked"].includes(status)) {
       updates.push(`status = $${paramIndex}`);
@@ -383,14 +384,14 @@ export async function PATCH(
             const txId = `tx_${Math.random().toString(36).slice(2, 10)}`;
             await pool.query(
               'INSERT INTO "Transaction" (id, "userId", type, label, detail, amount, date, status, "accountId", direction) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-              [txId, params.id, part.type, part.label, part.detail, part.amount, now, "completed", accountId, "credit"]
+              [txId, params.id, part.type, part.label, part.detail, part.amount, openingBalanceDate, "completed", accountId, "credit"]
             );
           }
 
           const txId2 = `tx_${Math.random().toString(36).slice(2, 10)}`;
           await pool.query(
             'INSERT INTO "Transaction" (id, "userId", type, label, detail, amount, date, status, "accountId", direction) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-            [txId2, params.id, "Housing", "Account Opening Fee", "MidwesternBank", -50, now, "completed", accountId, "debit"]
+            [txId2, params.id, "Housing", "Account Opening Fee", "MidwesternBank", -50, openingBalanceDate, "completed", accountId, "debit"]
           );
         }
 
@@ -412,7 +413,7 @@ export async function PATCH(
             const txId = `tx_${Math.random().toString(36).slice(2, 10)}`;
             await pool.query(
               'INSERT INTO "Transaction" (id, "userId", type, label, detail, amount, date, status, "accountId", direction) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-              [txId, params.id, part.type, part.label, part.detail, part.amount, now, "completed", accountId, "credit"]
+              [txId, params.id, part.type, part.label, part.detail, part.amount, openingBalanceDate, "completed", accountId, "credit"]
             );
           }
 
