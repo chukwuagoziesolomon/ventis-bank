@@ -34,12 +34,6 @@ export async function GET(request: Request) {
   }));
 
   recentTransactions.sort((a, b) => {
-    const aIsExchange = a.title === "DC Money Exchange";
-    const bIsExchange = b.title === "DC Money Exchange";
-    if (aIsExchange !== bIsExchange) {
-      return aIsExchange ? -1 : 1;
-    }
-
     const aTime = new Date(a.date).getTime();
     const bTime = new Date(b.date).getTime();
 
