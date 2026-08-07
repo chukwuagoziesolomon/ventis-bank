@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     pool.query('SELECT id, name, email, phone, address, "createdAt", image, role FROM "User" WHERE id = $1', [userId]),
     pool.query('SELECT * FROM "Account" WHERE "userId" = $1 ORDER BY "createdAt"', [userId]),
     pool.query('SELECT * FROM "Card" WHERE "userId" = $1 ORDER BY "createdAt"', [userId]),
-    pool.query('SELECT * FROM "Transaction" WHERE "userId" = $1 AND date <= $2 LIMIT 100', [userId, '2026-08-01T13:00:00.000Z']),
+    pool.query('SELECT * FROM "Transaction" WHERE "userId" = $1 LIMIT 100', [userId]),
   ]);
 
   const user = userResult.rows[0];
